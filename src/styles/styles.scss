@@ -1,0 +1,339 @@
+// // // ── Angular Material custom theme ──
+// // @use '@angular/material' as mat;
+
+// // @use 'tokens' as *;
+// // @use 'typography';
+
+// // @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+
+
+// // /* ✅ CORRECTED for Material 18.2 */
+// // $skillsync-primary: mat.define-palette(mat.$indigo-palette, 900);
+// // $skillsync-accent:  mat.define-palette(mat.$red-palette, 400);
+// // $skillsync-theme:   mat.define-light-theme((
+// //   color: (primary: $skillsync-primary, accent: $skillsync-accent)
+// // ));
+
+// // @include mat.all-component-themes($skillsync-theme);
+
+
+// // // ── Global resets ──
+// // *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+// // html, body {
+// //   height: 100%;
+// //   background: $bg-body;
+// // }
+
+// // a { text-decoration: none; color: inherit; }
+
+// // // ── Utility classes ──
+// // .page-container {
+// //   padding: $sp-lg $sp-xl;
+// //   max-width: 1400px;
+// // }
+
+// // .card {
+// //   background: $bg-white;
+// //   border-radius: $radius-md;
+// //   box-shadow: $shadow-card;
+// //   padding: $sp-lg;
+// // }
+
+// // .avatar {
+// //   display: inline-flex;
+// //   align-items: center;
+// //   justify-content: center;
+// //   border-radius: 50%;
+// //   font-weight: 600;
+// //   color: #fff;
+// //   flex-shrink: 0;
+// //   &.sm  { width: 32px; height: 32px; font-size: 13px; }
+// //   &.md  { width: 44px; height: 44px; font-size: 16px; }
+// //   &.lg  { width: 56px; height: 56px; font-size: 20px; }
+// // }
+
+// // .chip {
+// //   display: inline-block;
+// //   padding: 3px 10px;
+// //   border-radius: $radius-pill;
+// //   font-size: 12px;
+// //   font-weight: 500;
+// //   border: 1px solid $border-color;
+// //   color: $text-secondary;
+// //   background: $bg-white;
+// // }
+
+// // .chip-accent {
+// //   @extend .chip;
+// //   background: $accent;
+// //   color: #fff;
+// //   border-color: $accent;
+// // }
+
+// // .badge-status {
+// //   padding: 2px 10px;
+// //   border-radius: $radius-pill;
+// //   font-size: 12px;
+// //   font-weight: 600;
+// //   &.accepted  { background: #e8f5e9; color: $success; }
+// //   &.pending   { background: #fff3e0; color: $warning; }
+// //   &.cancelled { background: #ffebee; color: $danger; }
+// //   &.completed { background: #e3f2fd; color: $info; }
+// // }
+
+// // .star-rating {
+// //   color: #f4c150;
+// //   font-size: 14px;
+// // }
+
+// // // ── Scrollbar ──
+// // ::-webkit-scrollbar { width: 6px; }
+// // ::-webkit-scrollbar-track { background: transparent; }
+// // ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+// // // ✅ Optional recommended addition:
+// // // Force all Angular Material components to use Inter font instead of default Roboto
+// // .mat-mdc-button-base,
+// // .mat-mdc-form-field,
+// // .mat-mdc-table,
+// // .mat-mdc-tab,
+// // .mat-mdc-select,
+// // .mat-mdc-menu-item {
+// //   font-family: $font-family;
+// // }
+
+
+
+// @use '@angular/material' as mat;
+// @use 'tokens' as *;
+// @use 'typography';
+
+// @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+
+// // // ── Angular Material custom theme ──
+// // $skillsync-theme: mat.define-theme((
+// //   color: (
+// //     theme-type: light,
+// //     primary: mat.$indigo-palette,
+// //     tertiary: mat.$red-palette,
+// //   ),
+// //   density: (
+// //     scale: 0,
+// //   )
+// // ));
+
+// // :root {
+// //   @include mat.all-component-themes($skillsync-theme);
+// // }
+
+// // ── Angular Material custom theme ──
+// $skillsync-theme: mat.define-theme((
+//   color: (
+//     theme-type: light,
+//     primary: mat.$azure-palette,
+//     tertiary: mat.$red-palette,
+//   ),
+//   density: (
+//     scale: 0,
+//   )
+// ));
+
+// :root {
+//   @include mat.all-component-themes($skillsync-theme);
+// }
+
+// // ── Global resets ──
+// *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+// html, body {
+//   height: 100%;
+//   background: $bg-body;
+// }
+
+// a { text-decoration: none; color: inherit; }
+
+// // ── Utility classes ──
+// .page-container {
+//   padding: $sp-lg $sp-xl;
+//   max-width: 1400px;
+// }
+
+// .card {
+//   background: $bg-white;
+//   border-radius: $radius-md;
+//   box-shadow: $shadow-card;
+//   padding: $sp-lg;
+// }
+
+// .avatar {
+//   display: inline-flex;
+//   align-items: center;
+//   justify-content: center;
+//   border-radius: 50%;
+//   font-weight: 600;
+//   color: #fff;
+//   flex-shrink: 0;
+//   &.sm  { width: 32px; height: 32px; font-size: 13px; }
+//   &.md  { width: 44px; height: 44px; font-size: 16px; }
+//   &.lg  { width: 56px; height: 56px; font-size: 20px; }
+// }
+
+// .chip {
+//   display: inline-block;
+//   padding: 3px 10px;
+//   border-radius: $radius-pill;
+//   font-size: 12px;
+//   font-weight: 500;
+//   border: 1px solid $border-color;
+//   color: $text-secondary;
+//   background: $bg-white;
+// }
+
+// .chip-accent {
+//   @extend .chip;
+//   background: $accent;
+//   color: #fff;
+//   border-color: $accent;
+// }
+
+// .badge-status {
+//   padding: 2px 10px;
+//   border-radius: $radius-pill;
+//   font-size: 12px;
+//   font-weight: 600;
+//   &.accepted  { background: #e8f5e9; color: $success; }
+//   &.pending   { background: #fff3e0; color: $warning; }
+//   &.cancelled { background: #ffebee; color: $danger; }
+//   &.completed { background: #e3f2fd; color: $info; }
+// }
+
+// .star-rating {
+//   color: #f4c150;
+//   font-size: 14px;
+// }
+
+// // ── Scrollbar ──
+// ::-webkit-scrollbar { width: 6px; }
+// ::-webkit-scrollbar-track { background: transparent; }
+// ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+// // ── Force Inter font on all Material components ──
+// .mat-mdc-button-base,
+// .mat-mdc-form-field,
+// .mat-mdc-table,
+// .mat-mdc-tab,
+// .mat-mdc-select,
+// .mat-mdc-menu-item {
+//   font-family: $font-family;
+// }
+
+
+@use '@angular/material' as mat;
+@use 'tokens' as *;
+@use 'typography';
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+// ── Angular Material custom theme ──
+$skillsync-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+    tertiary: mat.$red-palette,
+  ),
+  density: (
+    scale: 0,
+  )
+));
+
+:root {
+  @include mat.all-component-themes($skillsync-theme);
+}
+
+// ── Global resets ──
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: $bg-body;
+}
+
+a { text-decoration: none; color: inherit; }
+
+// ── Utility classes ──
+.page-container {
+  padding: $sp-lg $sp-xl;
+  max-width: 1400px;
+}
+
+.card {
+  background: $bg-white;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
+  padding: $sp-lg;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+  &.sm  { width: 32px; height: 32px; font-size: 13px; }
+  &.md  { width: 44px; height: 44px; font-size: 16px; }
+  &.lg  { width: 56px; height: 56px; font-size: 20px; }
+}
+
+.chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: $radius-pill;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid $border-color;
+  color: $text-secondary;
+  background: $bg-white;
+}
+
+.chip-accent {
+  @extend .chip;
+  background: $accent;
+  color: #fff;
+  border-color: $accent;
+}
+
+.badge-status {
+  padding: 2px 10px;
+  border-radius: $radius-pill;
+  font-size: 12px;
+  font-weight: 600;
+  &.accepted  { background: #e8f5e9; color: $success; }
+  &.pending   { background: #fff3e0; color: $warning; }
+  &.cancelled { background: #ffebee; color: $danger; }
+  &.completed { background: #e3f2fd; color: $info; }
+}
+
+.star-rating {
+  color: #f4c150;
+  font-size: 14px;
+}
+
+// ── Scrollbar ──
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+// ── Force Inter font on all Material components ──
+.mat-mdc-button-base,
+.mat-mdc-form-field,
+.mat-mdc-table,
+.mat-mdc-tab,
+.mat-mdc-select,
+.mat-mdc-menu-item {
+  font-family: $font-family;
+}

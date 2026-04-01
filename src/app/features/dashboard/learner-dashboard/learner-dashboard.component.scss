@@ -1,0 +1,121 @@
+@use '../../../../styles/tokens' as *;
+
+.dashboard { max-width: 1200px; }
+
+.dash-header {
+  margin-bottom: $sp-lg;
+  h1 { margin-bottom: 4px; }
+}
+
+// ── Stats ──
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $sp-lg;
+  margin-bottom: $sp-xl;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.stat-change {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+// ── Mentors ──
+.section {
+  margin-bottom: $sp-xl;
+  h2 { margin-bottom: $sp-md; }
+}
+
+.mentors-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $sp-lg;
+}
+
+.mentor-card {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-md;
+}
+
+.mentor-header {
+  display: flex;
+  align-items: center;
+  gap: $sp-md;
+  h4 { margin-bottom: 2px; }
+  p { font-size: 13px; }
+}
+
+.mentor-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.mentor-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mentor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+
+  .price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $accent;
+  }
+}
+
+// ── Table ──
+.table-card { padding: 0; overflow: hidden; }
+
+.sessions-table {
+  width: 100%;
+  th { font-weight: 600; font-size: 12px; color: $text-secondary; letter-spacing: .5px; }
+  td { font-size: 14px; }
+}
+
+.dt-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 900px) {
+  .stats-grid    { grid-template-columns: repeat(2, 1fr); }
+  .mentors-grid  { grid-template-columns: 1fr; }
+}

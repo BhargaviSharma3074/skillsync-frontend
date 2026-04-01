@@ -1,0 +1,26 @@
+<aside class="sidebar" [class.collapsed]="collapsed">
+  <!-- Logo -->
+  <div class="logo">
+    <span class="logo-skill">Skill</span><span class="logo-sync">Sync</span>
+  </div>
+
+  <!-- Nav groups -->
+  @for (group of navGroups; track group.heading) {
+    @if (group.heading) {
+      <div class="nav-heading">{{ group.heading }}</div>
+    }
+    <nav>
+      @for (item of group.items; track item.route) {
+        <a class="nav-item"
+           [routerLink]="item.route"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          @if (!collapsed) {
+            <span>{{ item.label }}</span>
+          }
+        </a>
+      }
+    </nav>
+  }
+</aside>

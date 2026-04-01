@@ -1,0 +1,45 @@
+<div class="reviews-page">
+  <h1>Reviews</h1>
+  <p class="text-secondary" style="margin-bottom:24px">Rate your mentors and view past reviews</p>
+
+  <!-- Submit review -->
+  <div class="card" style="margin-bottom:24px">
+    <h3>Write a Review</h3>
+    <div class="rating-select">
+      @for (n of [1,2,3,4,5]; track n) {
+        <span class="rate-star"
+              [class.active]="n <= (hoverRating || selectedRating)"
+              (mouseenter)="hoverRating = n"
+              (mouseleave)="hoverRating = 0"
+              (click)="setRating(n)">★</span>
+      }
+    </div>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Your feedback</mat-label>
+      <textarea matInput rows="3" [(ngModel)]="comment"></textarea>
+    </mat-form-field>
+    <button mat-flat-button color="warn" (click)="submit()" [disabled]="!selectedRating || !comment">
+      Submit Review
+    </button>
+  </div>
+
+  <!-- Past reviews -->
+  <h3 style="margin-bottom:16px">Your Past Reviews</h3>
+  @for (r of reviews(); track r.id) {
+    <div class="card review-card">
+      <div class="review-header">
+        <span class="avatar md" [style.background]="avatarColor(r.mentorName)">
+          {{ r.mentorName | initials }}
+        </span>
+        <div>
+          <strong>{{ r.mentorName }}</strong>
+          <div class="star-rating">{{ stars(r.rating) }}</div>
+        </div>
+        <span class="text-light" style="margin-left:auto; font-size:13px">
+          {{ r.createdAt | timeAgo }}
+        </span>
+      </div>
+      <p class="review-comment">{{ r.comment }}</p>
+    </div>
+  }
+</div>

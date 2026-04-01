@@ -1,0 +1,32 @@
+@if (store.selectedMentor(); as m) {
+  <div class="profile-page">
+    <a routerLink="/mentors" class="back-link">← Back to Mentors</a>
+
+    <div class="profile-card card">
+      <div class="profile-header">
+        <span class="avatar lg" [style.background]="avatarColor(m.name)">{{ m.name | initials }}</span>
+        <div>
+          <h1>{{ m.name }}</h1>
+          <p class="text-secondary">{{ m.title || m.experience + ' yrs experience' }}</p>
+          <div class="star-rating" style="margin-top:4px">★★★★★ {{ m.rating }} ({{ m.reviewCount }} reviews)</div>
+        </div>
+        @if (m.available) {
+          <span class="available-badge">● Available</span>
+        }
+      </div>
+
+      <div class="profile-skills">
+        @for (s of m.skills; track s) { <span class="chip">{{ s }}</span> }
+      </div>
+
+      <p class="bio">{{ m.bio || 'Passionate mentor helping developers level up their skills.' }}</p>
+
+      <div class="profile-actions">
+        <span class="price">₹{{ m.hourlyRate }} / hr</span>
+        <button mat-flat-button color="warn" [routerLink]="['/sessions/book', m.id]">
+          Book a Session
+        </button>
+      </div>
+    </div>
+  </div>
+}

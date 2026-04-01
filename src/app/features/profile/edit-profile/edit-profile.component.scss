@@ -1,0 +1,27 @@
+@use '../../../../styles/tokens' as *;
+
+.profile-page { max-width:700px; }
+
+.avatar-section {
+  display:flex; align-items:center; gap:$sp-lg; margin-bottom:$sp-lg;
+}
+
+.name-row {
+  display:flex; gap:$sp-md;
+  mat-form-field { flex:1; }
+}
+
+.full-width { width:100%; }
+
+.skills-section {
+  margin-top:$sp-md;
+  h4 { margin-bottom:$sp-sm; }
+}
+
+.skills-list {
+  display:flex; flex-wrap:wrap; gap:8px; margin-bottom:$sp-md;
+}
+
+.add-skill-row {
+  display:flex; gap:$sp-md; align-items:flex-start;
+}

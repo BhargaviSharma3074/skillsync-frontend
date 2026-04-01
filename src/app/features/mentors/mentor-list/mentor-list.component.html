@@ -1,0 +1,90 @@
+<div class="mentors-page">
+  <div class="page-header">
+    <div>
+      <h1>Find a Mentor</h1>
+      <p class="text-secondary">Discover expert mentors matched to your learning goals</p>
+    </div>
+  </div>
+
+  <!-- Search bar -->
+  <div class="search-row">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput placeholder="Java, Spring Boot..." [(ngModel)]="searchQuery"
+             (keyup.enter)="onSearch()" />
+    </mat-form-field>
+    <button mat-flat-button color="warn" class="filter-btn" (click)="onSearch()">
+      <mat-icon>tune</mat-icon> Filters
+    </button>
+  </div>
+
+  <!-- Active filter chips -->
+  @if (store.activeFilters().length) {
+    <div class="active-filters">
+      @for (chip of store.activeFilters(); track chip.key) {
+        <span class="chip-accent">
+          {{ chip.label }}
+          <span class="chip-x" (click)="removeChip(chip.key)">✕</span>
+        </span>
+      }
+      <button mat-stroked-button color="warn" class="clear-btn" (click)="clearAll()">
+        Clear All
+      </button>
+    </div>
+  }
+
+  <!-- Results header -->
+  <div class="results-header">
+    <span class="text-secondary">
+      Showing <strong>{{ store.filteredCount() }}</strong> mentors matching your criteria
+    </span>
+    <mat-form-field appearance="outline" class="sort-select">
+      <mat-select [(value)]="sortBy">
+        <mat-option value="relevant">Most Relevant</mat-option>
+        <mat-option value="rating">Highest Rated</mat-option>
+        <mat-option value="price_low">Price: Low → High</mat-option>
+        <mat-option value="price_high">Price: High → Low</mat-option>
+        <mat-option value="experience">Experience</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Mentor cards grid -->
+  <div class="mentors-grid">
+    @for (m of store.mentors(); track m.id) {
+      <div class="mentor-card card">
+        <div class="mentor-top">
+          <span class="avatar lg" [style.background]="avatarColor(m.name)">
+            {{ m.name | initials }}
+          </span>
+          <div>
+            <h4>{{ m.name }}</h4>
+            <p class="text-secondary">{{ m.experience }} yrs experience</p>
+          </div>
+          @if (m.available) {
+            <span class="available-dot">● Available</span>
+          }
+        </div>
+
+        <div class="mentor-rating">
+          <span class="star-rating">★★★★★</span>
+          <span class="text-secondary">{{ m.rating }} ({{ m.reviewCount }})</span>
+        </div>
+
+        <div class="mentor-skills">
+          @for (s of m.skills; track s) {
+            <span class="chip">{{ s }}</span>
+          }
+        </div>
+
+        <div class="mentor-bottom">
+          <span class="price">₹{{ m.hourlyRate }}/hr</span>
+          <div class="btn-group">
+            <button mat-stroked-button color="warn" [routerLink]="['/mentors', m.id]">View</button>
+            <button mat-flat-button color="warn" [routerLink]="['/sessions/book', m.id]">Book</button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

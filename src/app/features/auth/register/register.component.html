@@ -1,0 +1,61 @@
+<div class="register-page">
+  <div class="brand-panel">
+    <div class="brand-content">
+      <h1><span class="skill">Skill</span><span class="sync">Sync</span></h1>
+      <p>Join thousands of learners and mentors growing together.</p>
+    </div>
+  </div>
+
+  <div class="form-panel">
+    <div class="form-container">
+      <h2>Create your account 🚀</h2>
+      <p class="subtitle">Start learning or mentoring today</p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="name-row">
+          <mat-form-field appearance="outline">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstName" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastName" />
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email Address</mat-label>
+          <input matInput formControlName="email" type="email" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput formControlName="password"
+                 [type]="hidePassword ? 'password' : 'text'" />
+          <button mat-icon-button matSuffix type="button"
+                  (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>I want to…</mat-label>
+          <mat-select formControlName="role">
+            <mat-option value="LEARNER">Learn (find mentors)</mat-option>
+            <mat-option value="MENTOR">Mentor (teach others)</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-flat-button color="warn" class="submit-btn" type="submit"
+                [disabled]="form.invalid || loading">
+          @if (loading) { <mat-spinner diameter="20" /> }
+          @else { CREATE ACCOUNT → }
+        </button>
+      </form>
+
+      <p class="login-link">
+        Already have an account? <a routerLink="/login">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>

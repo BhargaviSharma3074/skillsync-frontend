@@ -1,0 +1,62 @@
+<div class="groups-page">
+  <div class="page-header">
+    <div>
+      <h1>Learning Groups</h1>
+      <p class="text-secondary">Join peer communities and learn together</p>
+    </div>
+    <button mat-flat-button color="warn">+ Create New Group</button>
+  </div>
+
+  <!-- Search -->
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput placeholder="Search groups by topic, skill..."
+           [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" />
+  </mat-form-field>
+
+  <!-- Tabs -->
+  <mat-tab-group (selectedIndexChange)="onTabChange($event)" animationDuration="200ms">
+    @for (tab of tabs; track tab) {
+      <mat-tab [label]="tab" />
+    }
+  </mat-tab-group>
+
+  <!-- Group cards -->
+  <div class="groups-list">
+    @for (g of store.groups(); track g.id) {
+      <div class="group-card card">
+        <div class="group-card-body">
+          <div class="group-icon">{{ g.icon || '📚' }}</div>
+          <div class="group-info">
+            <h3>{{ g.name }}</h3>
+            <p class="group-meta text-secondary">
+              👥 {{ g.memberCount }} members • Created by {{ g.createdBy }}
+            </p>
+            <p class="group-desc">{{ g.description }}</p>
+            <div class="group-skills">
+              @for (s of g.skills; track s) {
+                <span class="chip">{{ s }}</span>
+              }
+            </div>
+            <div class="group-footer text-secondary">
+              <span>🟢 Active {{ g.lastActive }}</span>
+              <span>💬 {{ g.postsThisWeek }} posts this week</span>
+              <span>🔓 {{ g.isPublic ? 'Public Group' : 'Private Group' }}</span>
+            </div>
+          </div>
+          <div class="group-action">
+            <div class="member-count">
+              <strong>{{ g.memberCount }}</strong>
+              <span>Members</span>
+            </div>
+            <button mat-flat-button
+                    [color]="g.joined ? 'primary' : 'warn'"
+                    (click)="toggleJoin(g)">
+              {{ g.joined ? '✓ Joined' : '+ Join Group' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

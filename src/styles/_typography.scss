@@ -1,0 +1,19 @@
+@use 'tokens' as *;
+
+body {
+  font-family: $font-family;
+  color: $text-primary;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 { font-size: 1.75rem; font-weight: 700; }
+h2 { font-size: 1.4rem;  font-weight: 700; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+h4 { font-size: 1rem;    font-weight: 600; }
+
+.text-secondary { color: $text-secondary; }
+.text-light     { color: $text-light; }
+.text-accent    { color: $accent; }
+.text-success   { color: $success; }
+.text-warning   { color: $warning; }
+.text-danger    { color: $danger; }

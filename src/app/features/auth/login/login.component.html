@@ -1,0 +1,89 @@
+<div class="login-page">
+  <!-- Left branding panel -->
+  <div class="brand-panel">
+    <div class="brand-content">
+      <h1 class="brand-logo">
+        <span class="skill">Skill</span><span class="sync">Sync</span>
+      </h1>
+      <p class="brand-tagline">Peer Learning &amp; Mentor Matching Platform</p>
+
+      <div class="features">
+        <div class="feature-item">
+          <span class="feature-icon" style="background:#e94560">🎯</span>
+          <span>Find expert mentors matched to your goals</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon" style="background:#0984e3">📅</span>
+          <span>Book 1-on-1 sessions at your convenience</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon" style="background:#6c5ce7">👥</span>
+          <span>Join peer learning groups &amp; communities</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon" style="background:#fdcb6e">⭐</span>
+          <span>Track your growth with ratings &amp; reviews</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right form panel -->
+  <div class="form-panel">
+    <div class="form-container">
+      <h2>Welcome back 👋</h2>
+      <p class="subtitle">Sign in to your SkillSync account</p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email Address</mat-label>
+          <input matInput formControlName="email" type="email" placeholder="rahul.sharma@example.com" />
+          <mat-icon matPrefix>email</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput formControlName="password"
+                 [type]="hidePassword ? 'password' : 'text'" />
+          <mat-icon matPrefix>lock</mat-icon>
+          <button mat-icon-button matSuffix type="button"
+                  (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-checkbox formControlName="rememberMe" color="warn">Remember me</mat-checkbox>
+          <a routerLink="/forgot-password" class="forgot-link">Forgot Password?</a>
+        </div>
+
+        <button mat-flat-button color="warn" class="submit-btn" type="submit"
+                [disabled]="form.invalid || loading">
+          @if (loading) {
+            <mat-spinner diameter="20" />
+          } @else {
+            SIGN IN →
+          }
+        </button>
+      </form>
+
+      <div class="divider">
+        <span>or continue with</span>
+      </div>
+
+      <div class="social-buttons">
+        <button mat-stroked-button class="social-btn">
+          <span class="google-dot"></span> Google
+        </button>
+        <button mat-stroked-button class="social-btn">
+          <span class="linkedin-dot"></span> LinkedIn
+        </button>
+      </div>
+
+      <p class="register-link">
+        Don't have an account?
+        <a routerLink="/register">Create one free</a>
+      </p>
+    </div>
+  </div>
+</div>

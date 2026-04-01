@@ -1,0 +1,76 @@
+@use '../../../../styles/tokens' as *;
+
+.mentors-page { max-width: 1200px; }
+
+.page-header { margin-bottom: $sp-lg; h1 { margin-bottom: 4px; } }
+
+.search-row {
+  display: flex; gap: $sp-md; margin-bottom: $sp-md;
+}
+
+.search-field {
+  flex: 1;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+
+.filter-btn { height: 56px; border-radius: $radius-md !important; }
+
+.active-filters {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: $sp-md;
+}
+
+.chip-x { margin-left: 6px; cursor: pointer; }
+
+.clear-btn { font-size: 13px; }
+
+.results-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: $sp-lg;
+}
+
+.sort-select {
+  width: 180px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+
+// ── Cards grid ──
+.mentors-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: $sp-lg;
+}
+
+.mentor-card {
+  display: flex; flex-direction: column; gap: $sp-md;
+  transition: box-shadow .2s;
+  &:hover { box-shadow: $shadow-hover; }
+}
+
+.mentor-top {
+  display: flex; align-items: center; gap: $sp-md;
+  position: relative;
+  h4 { margin: 0; }
+}
+
+.available-dot {
+  position: absolute; top: 0; right: 0;
+  font-size: 11px; font-weight: 600; color: $success;
+}
+
+.mentor-rating {
+  display: flex; align-items: center; gap: 8px; font-size: 13px;
+}
+
+.mentor-skills { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.mentor-bottom {
+  display: flex; align-items: center; justify-content: space-between; margin-top: auto;
+}
+
+.price { font-size: 1rem; font-weight: 700; color: $accent; }
+
+.btn-group { display: flex; gap: 8px; }
+
+@media (max-width: 960px) {
+  .mentors-grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 640px) {
+  .mentors-grid { grid-template-columns: 1fr; }
+}

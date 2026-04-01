@@ -1,0 +1,107 @@
+<div class="admin">
+  <!-- Header -->
+  <div class="admin-header">
+    <div>
+      <h1>Admin Console</h1>
+      <p class="text-secondary">Platform overview — {{ today | date:'EEEE, MMMM d, y' }}</p>
+    </div>
+    <span class="admin-badge">● ADMIN</span>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    @for (card of statCards(); track card.label) {
+      <div class="stat-card card">
+        <div class="stat-icon" [style.background]="card.color">{{ card.icon }}</div>
+        <div class="stat-value">{{ card.value }}</div>
+        <div class="stat-label">{{ card.label }}</div>
+        <div class="stat-change text-success">{{ card.change }}</div>
+      </div>
+    }
+  </div>
+
+  <!-- Middle row: Approvals + Activity -->
+  <div class="middle-row">
+    <!-- Pending Mentor Approvals -->
+    <div class="card approvals-card">
+      <div class="card-header">
+        <h3>📋 Pending Mentor Approvals</h3>
+        <a class="text-accent view-all">View all (12) →</a>
+      </div>
+
+      <table class="approvals-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>APPLICANT</th>
+            <th>SKILLS</th>
+            <th>EXP</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of store.pendingApprovals(); track a.id; let i = $index) {
+            <tr>
+              <td>{{ i + 1 }}</td>
+              <td>
+                <div class="applicant-cell">
+                  <span class="avatar sm" [style.background]="avatarColor(a.name)">
+                    {{ a.name | initials }}
+                  </span>
+                  <div>
+                    <strong>{{ a.name }}</strong>
+                    <div class="text-light" style="font-size:12px">{{ a.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                @for (s of a.skills; track s) {
+                  <span class="chip">{{ s }}</span>
+                }
+              </td>
+              <td>{{ a.experience }} yrs</td>
+              <td>
+                <button class="action-btn approve" (click)="store.approve(a.id)">✓ Approve</button>
+                <button class="action-btn reject" (click)="store.reject(a.id)">✕</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card activity-card">
+      <h3>🔔 Recent Activity</h3>
+      <div class="activity-list">
+        @for (item of store.recentActivity(); track item.text) {
+          <div class="activity-item">
+            <mat-icon [style.color]="item.iconColor">{{ item.icon }}</mat-icon>
+            <div class="activity-text">
+              <span [innerHTML]="item.text"></span>
+              <span class="text-light activity-time">{{ item.time }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform Performance -->
+  <div class="card performance-card">
+    <h3>📈 Platform Performance (last 30 days)</h3>
+    <div class="metrics">
+      @for (m of store.performance(); track m.label) {
+        <div class="metric-row">
+          <span class="metric-label">{{ m.label }}</span>
+          <div class="metric-bar-wrap">
+            <mat-progress-bar mode="determinate" [value]="m.value"
+                              [style.--mdc-linear-progress-active-indicator-color]="m.color">
+            </mat-progress-bar>
+          </div>
+          <span class="metric-value">{{ m.value }}%</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

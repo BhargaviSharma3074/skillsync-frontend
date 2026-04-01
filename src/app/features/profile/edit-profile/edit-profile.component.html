@@ -1,0 +1,57 @@
+<div class="profile-page">
+  <h1>My Profile</h1>
+  <p class="text-secondary" style="margin-bottom:24px">Manage your personal information and skills</p>
+
+  <div class="card">
+    <div class="avatar-section">
+      <span class="avatar lg" [style.background]="bgColor">{{ initials }}</span>
+      <button mat-stroked-button>Change Photo</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="name-row">
+        <mat-form-field appearance="outline">
+          <mat-label>First Name</mat-label>
+          <input matInput formControlName="firstName" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Last Name</mat-label>
+          <input matInput formControlName="lastName" />
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Bio</mat-label>
+        <textarea matInput formControlName="bio" rows="3"></textarea>
+      </mat-form-field>
+
+      <div class="skills-section">
+        <h4>Skills</h4>
+        <div class="skills-list">
+          @for (s of skills; track s) {
+            <mat-chip-row (removed)="removeSkill(s)">
+              {{ s }}
+              <button matChipRemove><mat-icon>cancel</mat-icon></button>
+            </mat-chip-row>
+          }
+        </div>
+        <div class="add-skill-row">
+          <mat-form-field appearance="outline" style="flex:1">
+            <input matInput placeholder="Add a skill..." [(ngModel)]="newSkill"
+                   [ngModelOptions]="{standalone:true}" (keyup.enter)="addSkill()" />
+          </mat-form-field>
+          <button mat-stroked-button type="button" (click)="addSkill()">Add</button>
+        </div>
+      </div>
+
+      <button mat-flat-button color="warn" type="submit" style="margin-top:16px">
+        Save Changes
+      </button>
+    </form>
+  </div>
+</div>

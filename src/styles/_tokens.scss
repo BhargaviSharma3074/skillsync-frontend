@@ -1,0 +1,53 @@
+// ── Colors ──
+$primary:        #1a1a2e;
+$primary-dark:   #16213e;
+$accent:         #e94560;
+$accent-light:   #ff6b81;
+$success:        #4caf50;
+$warning:        #ff9800;
+$info:           #2196f3;
+$danger:         #f44336;
+
+$text-primary:   #1e1e2d;
+$text-secondary: #6c757d;
+$text-light:     #999;
+$text-white:     #ffffff;
+
+$bg-body:        #f5f7fa;
+$bg-white:       #ffffff;
+$border-color:   #e8e8e8;
+
+$sidebar-bg:     linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+$sidebar-text:   #a0a4b8;
+$sidebar-active: $accent;
+
+// ── Spacing ──
+$sp-xs: 4px;
+$sp-sm: 8px;
+$sp-md: 16px;
+$sp-lg: 24px;
+$sp-xl: 32px;
+$sp-xxl: 48px;
+
+// ── Misc ──
+$radius-sm:  6px;
+$radius-md:  10px;
+$radius-lg:  16px;
+$radius-xl:  24px;
+$radius-pill: 50px;
+
+$shadow-card:  0 2px 12px rgba(0,0,0,.07);
+$shadow-hover: 0 4px 20px rgba(0,0,0,.12);
+
+$font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+
+// ── Avatar palette ──
+$avatar-colors: (
+  'A': #e94560, 'B': #6c5ce7, 'C': #00b894, 'D': #fdcb6e,
+  'E': #e17055, 'F': #0984e3, 'G': #d63031, 'H': #00cec9,
+  'I': #a29bfe, 'J': #fd79a8, 'K': #2ecc71, 'L': #e94560,
+  'M': #6c5ce7, 'N': #00b894, 'O': #fdcb6e, 'P': #e94560,
+  'Q': #0984e3, 'R': #e17055, 'S': #0984e3, 'T': #00cec9,
+  'U': #a29bfe, 'V': #fdcb6e, 'W': #2ecc71, 'X': #d63031,
+  'Y': #fd79a8, 'Z': #6c5ce7
+);

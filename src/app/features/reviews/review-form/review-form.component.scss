@@ -1,0 +1,25 @@
+@use '../../../../styles/tokens' as *;
+
+.reviews-page { max-width:800px; }
+.full-width { width:100%; }
+
+.rating-select {
+  display:flex; gap:4px; margin:12px 0;
+}
+
+.rate-star {
+  font-size:28px; cursor:pointer; color:#ddd; transition:color .1s;
+  &.active { color:#f4c150; }
+}
+
+.review-card {
+  margin-bottom:$sp-md;
+}
+
+.review-header {
+  display:flex; align-items:center; gap:12px; margin-bottom:8px;
+}
+
+.review-comment {
+  color:$text-secondary; line-height:1.5;
+}

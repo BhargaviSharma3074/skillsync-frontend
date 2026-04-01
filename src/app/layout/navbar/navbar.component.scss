@@ -1,0 +1,18 @@
+@use '../../../styles/tokens' as *;
+
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 8px 32px;
+  background: $bg-white;
+  border-bottom: 1px solid $border-color;
+  height: 56px;
+}
+
+.navbar-spacer { flex: 1; }
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

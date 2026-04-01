@@ -1,0 +1,16 @@
+@use '../../../../styles/tokens' as *;
+
+.sessions-page { max-width:1100px; }
+.page-header {
+  display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:$sp-lg;
+  h1 { margin-bottom:4px; }
+}
+
+mat-tab-group { margin-bottom:$sp-lg; }
+
+.table-card { padding:0; overflow:hidden; }
+.sessions-table {
+  width:100%;
+  th { font-weight:600; font-size:12px; color:$text-secondary; }
+  td { font-size:14px; }
+}

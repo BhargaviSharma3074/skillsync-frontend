@@ -1,0 +1,26 @@
+<header class="navbar">
+  <div class="navbar-spacer"></div>
+
+  <div class="navbar-actions">
+    <button mat-icon-button matBadge="3" matBadgeColor="accent" matBadgeSize="small">
+      <mat-icon>notifications_none</mat-icon>
+    </button>
+
+    <button mat-icon-button [matMenuTriggerFor]="userMenu">
+      <span class="avatar sm" [style.background]="bgColor">{{ initials }}</span>
+    </button>
+
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item routerLink="/profile">
+        <mat-icon>person</mat-icon> My Profile
+      </button>
+      <button mat-menu-item routerLink="/settings">
+        <mat-icon>settings</mat-icon> Settings
+      </button>
+      <mat-divider />
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon> Sign Out
+      </button>
+    </mat-menu>
+  </div>
+</header>
