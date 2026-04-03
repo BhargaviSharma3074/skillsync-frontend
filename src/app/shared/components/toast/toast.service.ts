@@ -7,19 +7,28 @@ export class ToastService {
 
   success(message: string) {
     this.snack.open(message, '✕', {
-      duration: 3000, panelClass: ['toast-success'], horizontalPosition: 'end'
+      duration: 3000,
+      panelClass: ['toast-success'],
+      horizontalPosition: 'end',
+      verticalPosition: 'top'    // ← Add this
     });
   }
 
   error(message: string) {
     this.snack.open(message, '✕', {
-      duration: 5000, panelClass: ['toast-error'], horizontalPosition: 'end'
+      duration: 5000,
+      panelClass: ['toast-error'],
+      horizontalPosition: 'end',
+      verticalPosition: 'top'    // ← Add this
     });
   }
 
   info(message: string) {
     this.snack.open(message, '✕', {
-      duration: 3000, panelClass: ['toast-info'], horizontalPosition: 'end'
+      duration: 3000,
+      panelClass: ['toast-info'],
+      horizontalPosition: 'end',
+      verticalPosition: 'top'    // ← Add this
     });
   }
 }

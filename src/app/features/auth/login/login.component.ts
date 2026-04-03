@@ -1,4 +1,5 @@
-// import { Component, inject, signal } from '@angular/core';
+
+// import { Component, inject } from '@angular/core';
 // import { CommonModule } from '@angular/common';
 // import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 // import { Router, RouterModule } from '@angular/router';
@@ -7,10 +8,9 @@
 // import { MatButtonModule } from '@angular/material/button';
 // import { MatIconModule } from '@angular/material/icon';
 // import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+// import { MatSnackBarModule } from '@angular/material/snack-bar';  // ← ADD THIS
 // import { AuthService } from '../../../core/auth/auth.service';
 // import { ToastService } from '../../../shared/components/toast/toast.service';
-
-// type LoginRole = 'user' | 'mentor';
 
 // @Component({
 //   selector: 'app-login',
@@ -18,7 +18,8 @@
 //   imports: [
 //     CommonModule, ReactiveFormsModule, RouterModule,
 //     MatFormFieldModule, MatInputModule, MatButtonModule,
-//     MatIconModule, MatProgressSpinnerModule
+//     MatIconModule, MatProgressSpinnerModule,
+//     MatSnackBarModule   // ← ADD THIS
 //   ],
 //   templateUrl: './login.component.html',
 //   styleUrl: './login.component.scss'
@@ -30,41 +31,39 @@
 //   private toast = inject(ToastService);
 
 //   hidePassword = true;
-//   activeRole = signal<LoginRole>('user');
 
-//   loginForm = this.fb.nonNullable.group({
+//   form = this.fb.nonNullable.group({
 //     email: ['', [Validators.required, Validators.email]],
 //     password: ['', [Validators.required, Validators.minLength(6)]]
 //   });
 
 //   get loading() { return this.auth.loading(); }
 
-//   switchRole(role: LoginRole) {
-//     this.activeRole.set(role);
-//     this.hidePassword = true;
-//     this.loginForm.reset();
-//   }
+//   onSubmit() {
 
-//   onLogin() {
-//     if (this.loginForm.invalid) return;
-//     const val = this.loginForm.getRawValue();
+//     // console.log('Submit clicked');
+//     // this.toast.error('Test toast message');
+//     // console.log('Toast called');
+//     // return;
+//     if (this.form.invalid) return;
 
-//     this.auth.login({
-//       email: val.email,
-//       password: val.password
-//     }).subscribe({
+//     this.auth.login(this.form.getRawValue()).subscribe({
 //       next: () => {
-//         this.toast.success('Welcome back!');
+//         this.toast.success('Welcome back! 👋');
 //         this.router.navigate(['/dashboard']);
 //       },
 //       error: (err) => {
-//         if (err.status === 401) {
-//           this.toast.error('Invalid email or password');
-//         } else if (err.status === 403) {
-//           this.toast.error('Account is deactivated. Contact support.');
-//         } else if (err.status === 0) {
-//           this.toast.error('Cannot connect to server');
-//         } else {
+//         if (err.status === 401 || err.status === 400) {
+//           this.toast.error('Email or password is incorrect');
+//           this.form.get('password')?.reset();
+//         }
+//         else if (err.status === 403) {
+//           this.toast.error('Account deactivated. Contact support.');
+//         }
+//         else if (err.status === 0) {
+//           this.toast.error('Cannot connect to server.');
+//         }
+//         else {
 //           this.toast.error('Login failed. Please try again.');
 //         }
 //       }
@@ -73,7 +72,7 @@
 // }
 
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -83,7 +82,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/auth/auth.service';
-import { ToastService } from '../../../shared/components/toast/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -100,9 +98,11 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
-  private toast = inject(ToastService);
 
   hidePassword = true;
+
+  // Error message signal
+  errorMessage = signal<string | null>(null);
 
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -113,17 +113,34 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.form.invalid) return;
+
+    // Clear previous error
+    this.errorMessage.set(null);
+
     this.auth.login(this.form.getRawValue()).subscribe({
       next: () => {
-        this.toast.success('Welcome back! 👋');
+        this.errorMessage.set(null);
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
-        if (err.status === 401) this.toast.error('Invalid email or password');
-        else if (err.status === 403) this.toast.error('Account deactivated. Contact support.');
-        else if (err.status === 0) this.toast.error('Cannot connect to server.');
-        else this.toast.error('Login failed. Please try again.');
+        console.log('Login error status:', err.status);
+        console.log('Login error:', err);
+
+        if (err.status === 401 || err.status === 400) {
+          this.errorMessage.set('Email or password is incorrect. Please try again.');
+          this.form.get('password')?.reset();
+        } else if (err.status === 403) {
+          this.errorMessage.set('Your account has been deactivated. Contact support.');
+        } else if (err.status === 0) {
+          this.errorMessage.set('Cannot connect to server. Check your internet connection.');
+        } else {
+          this.errorMessage.set('Login failed. Please try again.');
+        }
       }
     });
+  }
+
+  clearError() {
+    this.errorMessage.set(null);
   }
 }

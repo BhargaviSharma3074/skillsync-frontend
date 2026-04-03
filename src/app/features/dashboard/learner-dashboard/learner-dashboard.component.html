@@ -1,5 +1,5 @@
-<div class="dashboard">
-  <!-- Header -->
+<!-- <div class="dashboard">
+  Header
   <div class="dash-header">
     <div>
       <h1>{{ greeting }}</h1>
@@ -7,7 +7,7 @@
     </div>
   </div>
 
-  <!-- Stats Cards -->
+  Stats Cards
   <div class="stats-grid">
     @for (card of statsCards(); track card.label) {
     <div class="stat-card card">
@@ -19,7 +19,7 @@
     }
   </div>
 
-  <!-- Apply as Mentor Banner -->
+  Apply as Mentor Banner
   @if (!isMentor) {
   <div class="mentor-apply-banner">
     <div class="banner-left">
@@ -32,7 +32,7 @@
   </div>
   }
 
-  <!-- Recommended Mentors -->
+  Recommended Mentors
   <section class="section">
     <h2>Recommended Mentors</h2>
     <div class="mentors-grid">
@@ -67,7 +67,7 @@
     </div>
   </section>
 
-  <!-- Upcoming Sessions -->
+  Upcoming Sessions
   <section class="section">
     <h2>Upcoming Sessions</h2>
     <div class="card table-card">
@@ -110,4 +110,173 @@
       </table>
     </div>
   </section>
+</div> -->
+
+
+<div class="dashboard">
+  <!-- Header -->
+  <div class="dash-header">
+    <div>
+      <h1>{{ greeting }}</h1>
+      <p class="text-secondary">
+        {{ today | date:'EEEE, MMMM d, y' }} — Here's your learning overview
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (store.loading()) {
+  <div class="loading-state">
+    <mat-spinner diameter="40" />
+    <p>Loading your dashboard...</p>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (store.error() && !store.loading()) {
+  <div class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ store.error() }}</p>
+    <button mat-flat-button color="warn" (click)="retry()">
+      Retry
+    </button>
+  </div>
+  }
+
+  <!-- Dashboard Content -->
+  @if (!store.loading() && !store.error()) {
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    @for (card of statsCards(); track card.label) {
+    <div class="stat-card card">
+      <div class="stat-icon" [style.background]="card.color">
+        {{ card.icon }}
+      </div>
+      <div class="stat-value">{{ card.value }}</div>
+      <div class="stat-label">{{ card.label }}</div>
+      <div class="stat-change text-accent">{{ card.change }}</div>
+    </div>
+    }
+  </div>
+
+  <!-- Apply as Mentor Banner -->
+  @if (!isMentor) {
+  <div class="mentor-apply-banner">
+    <div class="banner-left">
+      <h3>🎓 Share your expertise — Become a Mentor</h3>
+      <p>Help learners grow while earning. Apply to become a mentor on SkillSync.</p>
+    </div>
+    <button mat-flat-button color="warn" routerLink="/apply-mentor">
+      Apply as Mentor →
+    </button>
+  </div>
+  }
+
+  <!-- Recommended Mentors -->
+  <section class="section">
+    <h2>Recommended Mentors</h2>
+
+    @if (store.mentors().length === 0) {
+    <div class="empty-state">
+      <mat-icon>person_search</mat-icon>
+      <p>No mentors available at the moment.</p>
+    </div>
+    } @else {
+    <div class="mentors-grid">
+      @for (mentor of store.mentors(); track mentor.id) {
+      <div class="mentor-card card">
+        <div class="mentor-header">
+          <span class="avatar lg" [style.background]="avatarColor(mentor.name)">
+            {{ mentor.name | initials }}
+          </span>
+          <div>
+            <h4>{{ mentor.name }}</h4>
+            <p class="text-secondary">{{ mentor.experience }} yrs experience</p>
+          </div>
+        </div>
+
+        <div class="mentor-rating">
+          <span class="star-rating">★★★★★</span>
+          <span class="text-secondary">
+            {{ mentor.rating }} ({{ mentor.reviewCount }} reviews)
+          </span>
+        </div>
+
+        <div class="mentor-skills">
+          @for (skill of mentor.skills; track skill) {
+          <span class="chip">{{ skill }}</span>
+          }
+        </div>
+
+        <div class="mentor-footer">
+          <span class="price">₹{{ mentor.hourlyRate }} / hr</span>
+          <button mat-flat-button color="warn" [routerLink]="['/sessions/book', mentor.id]">
+            Book Session
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </section>
+
+  <!-- Upcoming Sessions -->
+  <section class="section">
+    <h2>Upcoming Sessions</h2>
+
+    @if (store.sessions().length === 0) {
+    <div class="empty-state">
+      <mat-icon>event_busy</mat-icon>
+      <p>No upcoming sessions. Book a mentor to get started!</p>
+      <button mat-flat-button color="warn" routerLink="/mentors">
+        Find a Mentor
+      </button>
+    </div>
+    } @else {
+    <div class="card table-card">
+      <table mat-table [dataSource]="store.sessions()" class="sessions-table">
+
+        <ng-container matColumnDef="dateTime">
+          <th mat-header-cell *matHeaderCellDef>DATE &amp; TIME</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="dt-cell">
+              📅 {{ s.dateTime | date:'MMM d' }}
+              · {{ s.dateTime | date:'h:mm a' }}
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="mentor">
+          <th mat-header-cell *matHeaderCellDef>MENTOR</th>
+          <td mat-cell *matCellDef="let s">{{ s.mentorName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="topic">
+          <th mat-header-cell *matHeaderCellDef>TOPIC</th>
+          <td mat-cell *matCellDef="let s">{{ s.topic }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="duration">
+          <th mat-header-cell *matHeaderCellDef>DURATION</th>
+          <td mat-cell *matCellDef="let s">{{ s.duration }} min</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>STATUS</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="badge-status" [ngClass]="s.status.toLowerCase()">
+              {{ s.status | titlecase }}
+            </span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+    }
+  </section>
+
+  }
 </div>
