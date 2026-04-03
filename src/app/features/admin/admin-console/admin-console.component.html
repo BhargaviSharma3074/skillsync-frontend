@@ -29,45 +29,49 @@
         <a class="text-accent view-all">View all (12) →</a>
       </div>
 
-      <table class="approvals-table">
-        <thead>
+       <div class="table-wrapper">
+    <table class="approvals-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>APPLICANT</th>
+          <th>SKILLS</th>
+          <th>EXP</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (a of store.pendingApprovals(); track a.id; let i = $index) {
           <tr>
-            <th>#</th>
-            <th>APPLICANT</th>
-            <th>SKILLS</th>
-            <th>EXP</th>
-            <th>ACTIONS</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (a of store.pendingApprovals(); track a.id; let i = $index) {
-            <tr>
-              <td>{{ i + 1 }}</td>
-              <td>
-                <div class="applicant-cell">
-                  <span class="avatar sm" [style.background]="avatarColor(a.name)">
-                    {{ a.name | initials }}
-                  </span>
-                  <div>
-                    <strong>{{ a.name }}</strong>
-                    <div class="text-light" style="font-size:12px">{{ a.email }}</div>
-                  </div>
+            <td data-label="#">{{ i + 1 }}</td>
+            <td data-label="APPLICANT">
+              <div class="applicant-cell">
+                <span class="avatar sm" [style.background]="avatarColor(a.name)">
+                  {{ a.name | initials }}
+                </span>
+                <div>
+                  <strong>{{ a.name }}</strong>
+                  <div class="text-light" style="font-size:12px">{{ a.email }}</div>
                 </div>
-              </td>
-              <td>
-                @for (s of a.skills; track s) {
-                  <span class="chip">{{ s }}</span>
-                }
-              </td>
-              <td>{{ a.experience }} yrs</td>
-              <td>
+              </div>
+            </td>
+            <td data-label="SKILLS">
+              @for (s of a.skills; track s) {
+                <span class="chip">{{ s }}</span>
+              }
+            </td>
+            <td data-label="EXP">{{ a.experience }} yrs</td>
+            <td data-label="ACTIONS">
+              <div class="action-buttons">
                 <button class="action-btn approve" (click)="store.approve(a.id)">✓ Approve</button>
                 <button class="action-btn reject" (click)="store.reject(a.id)">✕</button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
     </div>
 
     <!-- Recent Activity -->

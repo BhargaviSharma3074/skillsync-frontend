@@ -10,6 +10,7 @@ import { DashboardStore } from '../dashboard.store';
 import { avatarColor } from '../../../shared/utils/avatar-color';
 import { InitialsPipe } from '../../../shared/pipes/initials.pipe';
 
+
 @Component({
   selector: 'app-learner-dashboard',
   standalone: true,
@@ -28,6 +29,10 @@ export class LearnerDashboardComponent implements OnInit {
   today = new Date();
   displayedColumns = ['dateTime', 'mentor', 'topic', 'duration', 'status'];
 
+  get isMentor(): boolean {
+    return this.auth.isMentor();
+  }
+
   ngOnInit() {
     const hour = new Date().getHours();
     const name = this.auth.currentUser()?.firstName ?? 'Learner';
@@ -43,10 +48,10 @@ export class LearnerDashboardComponent implements OnInit {
   statsCards() {
     const s = this.store.stats();
     return [
-      { icon: '📅', label: 'Upcoming Sessions', value: s.upcomingSessions, change: '↑ This week',       color: '#fff3e0' },
-      { icon: '👨‍🏫', label: 'Connected Mentors', value: s.connectedMentors, change: '+1 this month',     color: '#e8f5e9' },
-      { icon: '👥', label: 'Active Groups',      value: s.activeGroups,     change: '2 new posts',      color: '#e3f2fd' },
-      { icon: '⭐', label: 'Sessions Completed', value: s.sessionsCompleted, change: '+3 this month',    color: '#fce4ec' }
+      { icon: '📅', label: 'Upcoming Sessions', value: s.upcomingSessions, change: '↑ This week', color: '#fff3e0' },
+      { icon: '👨‍🏫', label: 'Connected Mentors', value: s.connectedMentors, change: '+1 this month', color: '#e8f5e9' },
+      { icon: '👥', label: 'Active Groups', value: s.activeGroups, change: '2 new posts', color: '#e3f2fd' },
+      { icon: '⭐', label: 'Sessions Completed', value: s.sessionsCompleted, change: '+3 this month', color: '#fce4ec' }
     ];
   }
 }

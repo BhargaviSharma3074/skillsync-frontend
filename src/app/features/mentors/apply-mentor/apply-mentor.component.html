@@ -1,0 +1,75 @@
+<div class="apply-page">
+    <div class="apply-header">
+        <a routerLink="/dashboard" class="back-link">← Back to Dashboard</a>
+        <h1>Apply to Become a Mentor 🎓</h1>
+        <p class="text-secondary">
+            Share your expertise and help learners grow. Your application will be reviewed by our admin team.
+        </p>
+    </div>
+
+    <div class="apply-card card">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+            <!-- Bio -->
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Bio (minimum 50 characters)</mat-label>
+                <textarea matInput formControlName="bio" rows="4"
+                    placeholder="I am a senior developer with 8 years of experience in..."></textarea>
+                <mat-hint>{{ form.get('bio')?.value?.length || 0 }} / 1000 chars (min 50)</mat-hint>
+            </mat-form-field>
+
+            <!-- Experience + Rate -->
+            <div class="two-col">
+                <mat-form-field appearance="outline">
+                    <mat-label>Years of Experience</mat-label>
+                    <input matInput formControlName="experience" type="number" min="0" max="50" />
+                    <mat-icon matPrefix>work</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Hourly Rate (₹)</mat-label>
+                    <input matInput formControlName="hourlyRate" type="number" min="1" />
+                    <mat-icon matPrefix>currency_rupee</mat-icon>
+                </mat-form-field>
+            </div>
+
+            <!-- Skills -->
+            <div class="skills-section">
+                <label class="skills-label">Select your Skills *</label>
+                <p class="skills-sub text-secondary">Click to select skills you can teach</p>
+                <div class="skills-grid">
+                    @for (skill of allSkills; track skill.id) {
+                    <button type="button" class="skill-btn" [class.selected]="isSelected(skill.id)"
+                        (click)="toggleSkill(skill.id)">
+                        {{ skill.name }}
+                        <span class="skill-cat">{{ skill.category }}</span>
+                    </button>
+                    }
+                </div>
+                @if (selectedSkillIds.length === 0) {
+                <p class="skills-hint">Select at least one skill</p>
+                } @else {
+                <p class="skills-selected">{{ selectedSkillIds.length }} skill(s) selected ✓</p>
+                }
+            </div>
+
+            <!-- Submit -->
+            <button mat-flat-button color="warn" type="submit" class="submit-btn"
+                [disabled]="form.invalid || selectedSkillIds.length === 0 || loading">
+                @if (loading) { <mat-spinner diameter="20" /> }
+                @else { SUBMIT APPLICATION → }
+            </button>
+        </form>
+    </div>
+
+    <!-- Info box -->
+    <div class="info-box">
+        <h4>📋 What happens next?</h4>
+        <ol>
+            <li>Your application is submitted with status <strong>PENDING</strong></li>
+            <li>Our admin team reviews your profile and skills</li>
+            <li>You receive an email notification when approved</li>
+            <li>Your role changes to <strong>MENTOR</strong> and your profile becomes searchable</li>
+        </ol>
+    </div>
+</div>

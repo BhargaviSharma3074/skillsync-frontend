@@ -1,10 +1,15 @@
 @use '../../../../styles/tokens' as *;
 
-.dashboard { max-width: 1200px; }
+.dashboard {
+  max-width: 1200px;
+}
 
 .dash-header {
   margin-bottom: $sp-lg;
-  h1 { margin-bottom: 4px; }
+
+  h1 {
+    margin-bottom: 4px;
+  }
 }
 
 // ── Stats ──
@@ -51,7 +56,10 @@
 // ── Mentors ──
 .section {
   margin-bottom: $sp-xl;
-  h2 { margin-bottom: $sp-md; }
+
+  h2 {
+    margin-bottom: $sp-md;
+  }
 }
 
 .mentors-grid {
@@ -70,8 +78,35 @@
   display: flex;
   align-items: center;
   gap: $sp-md;
-  h4 { margin-bottom: 2px; }
-  p { font-size: 13px; }
+
+  h4 {
+    margin-bottom: 2px;
+  }
+
+  p {
+    font-size: 13px;
+  }
+}
+
+.mentor-apply-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #1a1a2e 0%, #e94560 100%);
+  border-radius: $radius-md;
+  padding: $sp-lg $sp-xl;
+  margin-bottom: $sp-xl;
+  color: #fff;
+
+  h3 {
+    margin-bottom: 4px;
+    font-size: 1.1rem;
+  }
+
+  p {
+    font-size: 13px;
+    opacity: .85;
+  }
 }
 
 .mentor-rating {
@@ -101,12 +136,24 @@
 }
 
 // ── Table ──
-.table-card { padding: 0; overflow: hidden; }
+.table-card {
+  padding: 0;
+  overflow: hidden;
+}
 
 .sessions-table {
   width: 100%;
-  th { font-weight: 600; font-size: 12px; color: $text-secondary; letter-spacing: .5px; }
-  td { font-size: 14px; }
+
+  th {
+    font-weight: 600;
+    font-size: 12px;
+    color: $text-secondary;
+    letter-spacing: .5px;
+  }
+
+  td {
+    font-size: 14px;
+  }
 }
 
 .dt-cell {
@@ -116,6 +163,11 @@
 }
 
 @media (max-width: 900px) {
-  .stats-grid    { grid-template-columns: repeat(2, 1fr); }
-  .mentors-grid  { grid-template-columns: 1fr; }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mentors-grid {
+    grid-template-columns: 1fr;
+  }
 }

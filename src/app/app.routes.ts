@@ -48,6 +48,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/groups/group-list/group-list.component').then(m => m.GroupListComponent)
       },
       {
+        path: 'apply-mentor',
+        loadComponent: () => import('./features/mentors/apply-mentor/apply-mentor.component').then(m => m.ApplyMentorComponent)
+      },
+      {
         path: 'reviews',
         loadComponent: () => import('./features/reviews/review-form/review-form.component').then(m => m.ReviewFormComponent)
       },
@@ -62,10 +66,10 @@ export const routes: Routes = [
       },
       // Placeholder routes
       { path: 'notifications', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
-      { path: 'settings',      loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
-      { path: 'admin/users',   loadComponent: () => import('./features/admin/admin-console/admin-console.component').then(m => m.AdminConsoleComponent) },
+      { path: 'settings', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
+      { path: 'admin/users', loadComponent: () => import('./features/admin/admin-console/admin-console.component').then(m => m.AdminConsoleComponent) },
       { path: 'admin/approvals', loadComponent: () => import('./features/admin/admin-console/admin-console.component').then(m => m.AdminConsoleComponent) },
-      { path: 'admin/skills',  loadComponent: () => import('./features/admin/admin-console/admin-console.component').then(m => m.AdminConsoleComponent) },
+      { path: 'admin/skills', loadComponent: () => import('./features/admin/admin-console/admin-console.component').then(m => m.AdminConsoleComponent) },
     ]
   },
 

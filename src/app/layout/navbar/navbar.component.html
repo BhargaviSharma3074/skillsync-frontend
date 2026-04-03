@@ -6,20 +6,31 @@
       <mat-icon>notifications_none</mat-icon>
     </button>
 
-    <button mat-icon-button [matMenuTriggerFor]="userMenu">
+    <button class="avatar-btn" [matMenuTriggerFor]="userMenu">
       <span class="avatar sm" [style.background]="bgColor">{{ initials }}</span>
     </button>
 
-    <mat-menu #userMenu="matMenu">
+    <mat-menu #userMenu="matMenu" [overlapTrigger]="false" class="profile-menu">
+      <div class="menu-header">
+        <span class="avatar md" [style.background]="bgColor">{{ initials }}</span>
+        <div class="menu-user-info">
+          <strong>{{ auth.currentUser()?.firstName }} {{ auth.currentUser()?.lastName }}</strong>
+          <span>{{ auth.currentUser()?.email }}</span>
+        </div>
+      </div>
+      <mat-divider />
       <button mat-menu-item routerLink="/profile">
-        <mat-icon>person</mat-icon> My Profile
+        <mat-icon>person</mat-icon>
+        <span>My Profile</span>
       </button>
       <button mat-menu-item routerLink="/settings">
-        <mat-icon>settings</mat-icon> Settings
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
       </button>
       <mat-divider />
-      <button mat-menu-item (click)="logout()">
-        <mat-icon>logout</mat-icon> Sign Out
+      <button mat-menu-item (click)="logout()" class="logout-item">
+        <mat-icon>logout</mat-icon>
+        <span>Sign Out</span>
       </button>
     </mat-menu>
   </div>

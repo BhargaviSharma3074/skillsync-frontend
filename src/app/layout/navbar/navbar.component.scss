@@ -1,3 +1,23 @@
+// @use '../../../styles/tokens' as *;
+
+// .navbar {
+//   display: flex;
+//   align-items: center;
+//   padding: 8px 32px;
+//   background: $bg-white;
+//   border-bottom: 1px solid $border-color;
+//   height: 56px;
+// }
+
+// .navbar-spacer { flex: 1; }
+
+// .navbar-actions {
+//   display: flex;
+//   align-items: center;
+//   gap: 8px;
+// }
+
+
 @use '../../../styles/tokens' as *;
 
 .navbar {
@@ -15,4 +35,17 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.avatar-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: box-shadow .2s;
+
+  &:hover {
+    box-shadow: 0 0 0 3px rgba($accent, .2);
+  }
 }

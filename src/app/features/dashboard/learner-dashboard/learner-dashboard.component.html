@@ -10,46 +10,59 @@
   <!-- Stats Cards -->
   <div class="stats-grid">
     @for (card of statsCards(); track card.label) {
-      <div class="stat-card card">
-        <div class="stat-icon" [style.background]="card.color">{{ card.icon }}</div>
-        <div class="stat-value">{{ card.value }}</div>
-        <div class="stat-label">{{ card.label }}</div>
-        <div class="stat-change text-accent">{{ card.change }}</div>
-      </div>
+    <div class="stat-card card">
+      <div class="stat-icon" [style.background]="card.color">{{ card.icon }}</div>
+      <div class="stat-value">{{ card.value }}</div>
+      <div class="stat-label">{{ card.label }}</div>
+      <div class="stat-change text-accent">{{ card.change }}</div>
+    </div>
     }
   </div>
+
+  <!-- Apply as Mentor Banner -->
+  @if (!isMentor) {
+  <div class="mentor-apply-banner">
+    <div class="banner-left">
+      <h3>🎓 Share your expertise — Become a Mentor</h3>
+      <p>Help learners grow while earning. Apply to become a mentor on SkillSync.</p>
+    </div>
+    <button mat-flat-button color="warn" routerLink="/apply-mentor">
+      Apply as Mentor →
+    </button>
+  </div>
+  }
 
   <!-- Recommended Mentors -->
   <section class="section">
     <h2>Recommended Mentors</h2>
     <div class="mentors-grid">
       @for (mentor of store.mentors(); track mentor.id) {
-        <div class="mentor-card card">
-          <div class="mentor-header">
-            <span class="avatar lg" [style.background]="avatarColor(mentor.name)">
-              {{ mentor.name | initials }}
-            </span>
-            <div>
-              <h4>{{ mentor.name }}</h4>
-              <p class="text-secondary">{{ mentor.experience }} yrs experience</p>
-            </div>
-          </div>
-          <div class="mentor-rating">
-            <span class="star-rating">★★★★★</span>
-            <span class="text-secondary">{{ mentor.rating }} ({{ mentor.reviewCount }} reviews)</span>
-          </div>
-          <div class="mentor-skills">
-            @for (skill of mentor.skills; track skill) {
-              <span class="chip">{{ skill }}</span>
-            }
-          </div>
-          <div class="mentor-footer">
-            <span class="price">₹{{ mentor.hourlyRate }} / hr</span>
-            <button mat-flat-button color="warn" [routerLink]="['/sessions/book', mentor.id]">
-              Book Session
-            </button>
+      <div class="mentor-card card">
+        <div class="mentor-header">
+          <span class="avatar lg" [style.background]="avatarColor(mentor.name)">
+            {{ mentor.name | initials }}
+          </span>
+          <div>
+            <h4>{{ mentor.name }}</h4>
+            <p class="text-secondary">{{ mentor.experience }} yrs experience</p>
           </div>
         </div>
+        <div class="mentor-rating">
+          <span class="star-rating">★★★★★</span>
+          <span class="text-secondary">{{ mentor.rating }} ({{ mentor.reviewCount }} reviews)</span>
+        </div>
+        <div class="mentor-skills">
+          @for (skill of mentor.skills; track skill) {
+          <span class="chip">{{ skill }}</span>
+          }
+        </div>
+        <div class="mentor-footer">
+          <span class="price">₹{{ mentor.hourlyRate }} / hr</span>
+          <button mat-flat-button color="warn" [routerLink]="['/sessions/book', mentor.id]">
+            Book Session
+          </button>
+        </div>
+      </div>
       }
     </div>
   </section>

@@ -1,15 +1,37 @@
-<div class="register-page">
+<div class="auth-page">
+  <!-- Left branding -->
   <div class="brand-panel">
     <div class="brand-content">
-      <h1><span class="skill">Skill</span><span class="sync">Sync</span></h1>
-      <p>Join thousands of learners and mentors growing together.</p>
+      <h1 class="brand-logo">
+        <span class="skill">Skill</span><span class="sync">Sync</span>
+      </h1>
+      <p class="brand-tagline">Peer Learning &amp; Mentor Matching Platform</p>
+      <div class="features">
+        <div class="feature-item">
+          <span class="feature-icon" style="background:#e94560">🎯</span>
+          <span>Find expert mentors matched to your goals</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon" style="background:#0984e3">📅</span>
+          <span>Book 1-on-1 sessions at your convenience</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon" style="background:#6c5ce7">👥</span>
+          <span>Join peer learning groups &amp; communities</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon" style="background:#fdcb6e">⭐</span>
+          <span>Track your growth with ratings &amp; reviews</span>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Right form -->
   <div class="form-panel">
     <div class="form-container">
       <h2>Create your account 🚀</h2>
-      <p class="subtitle">Start learning or mentoring today</p>
+      <p class="subtitle">Start your learning journey today</p>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="name-row">
@@ -25,36 +47,58 @@
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Email Address</mat-label>
-          <input matInput formControlName="email" type="email" />
+          <input matInput formControlName="email" type="email" placeholder="rahul@example.com" />
+          <mat-icon matPrefix>email</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Password</mat-label>
-          <input matInput formControlName="password"
-                 [type]="hidePassword ? 'password' : 'text'" />
-          <button mat-icon-button matSuffix type="button"
-                  (click)="hidePassword = !hidePassword">
+          <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'"
+            (focus)="showPasswordRequirements = true" />
+          <mat-icon matPrefix>lock</mat-icon>
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
             <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>I want to…</mat-label>
-          <mat-select formControlName="role">
-            <mat-option value="LEARNER">Learn (find mentors)</mat-option>
-            <mat-option value="MENTOR">Mentor (teach others)</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <!-- Password Requirements Box -->
+        @if (showPasswordRequirements || form.controls.password.value) {
+        <div class="password-requirements">
+          <p class="req-title">Password must contain:</p>
+          <ul>
+            <li [class.valid]="hasMinLength">
+              <mat-icon>{{ hasMinLength ? 'check_circle' : 'cancel' }}</mat-icon>
+              At least 8 characters
+            </li>
+            <li [class.valid]="hasUppercase">
+              <mat-icon>{{ hasUppercase ? 'check_circle' : 'cancel' }}</mat-icon>
+              One uppercase letter (A-Z)
+            </li>
+            <li [class.valid]="hasLowercase">
+              <mat-icon>{{ hasLowercase ? 'check_circle' : 'cancel' }}</mat-icon>
+              One lowercase letter (a-z)
+            </li>
+            <li [class.valid]="hasDigit">
+              <mat-icon>{{ hasDigit ? 'check_circle' : 'cancel' }}</mat-icon>
+              One number (0-9)
+            </li>
+            <li [class.valid]="hasSpecialChar">
+              <mat-icon>{{ hasSpecialChar ? 'check_circle' : 'cancel' }}</mat-icon>
+              One special character (!&#64;#$%^&*...)
+            </li>
+          </ul>
+        </div>
+        }
 
-        <button mat-flat-button color="warn" class="submit-btn" type="submit"
-                [disabled]="form.invalid || loading">
+        <button mat-flat-button color="warn" class="submit-btn" type="submit" [disabled]="form.invalid || loading">
           @if (loading) { <mat-spinner diameter="20" /> }
           @else { CREATE ACCOUNT → }
         </button>
       </form>
 
-      <p class="login-link">
-        Already have an account? <a routerLink="/login">Sign in</a>
+      <p class="switch-link">
+        Already have an account?
+        <a routerLink="/login">Sign in</a>
       </p>
     </div>
   </div>

@@ -1,12 +1,12 @@
 export interface User {
   id: string;
   email: string;
+  username: string;
   firstName: string;
   lastName: string;
-  role: 'LEARNER' | 'MENTOR' | 'ADMIN';
-  avatarUrl?: string;
+  role: 'ROLE_LEARNER' | 'ROLE_MENTOR' | 'ROLE_ADMIN' | 'LEARNER' | 'MENTOR' | 'ADMIN';
+  status?: string;
   skills?: string[];
-  bio?: string;
 }
 
 export interface LoginPayload {
@@ -15,14 +15,20 @@ export interface LoginPayload {
 }
 
 export interface RegisterPayload {
-  firstName: string;
-  lastName: string;
+  username: string;
   email: string;
   password: string;
-  role: 'LEARNER' | 'MENTOR';
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  user: User;
+  token: string;
+}
+
+export interface JwtPayload {
+  sub: string;       // email
+  userId: number;
+  username: string;
+  roles: string[];
+  iat: number;
+  exp: number;
 }

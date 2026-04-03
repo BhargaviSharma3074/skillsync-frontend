@@ -337,3 +337,56 @@ a { text-decoration: none; color: inherit; }
 .mat-mdc-menu-item {
   font-family: $font-family;
 }
+
+// ── Profile dropdown menu styling ──
+.profile-menu {
+  .mat-mdc-menu-content {
+    padding: 0 !important;
+  }
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.menu-user-info {
+  display: flex;
+  flex-direction: column;
+
+  strong {
+    font-size: 14px;
+    color: #1e1e2d;
+  }
+
+  span {
+    font-size: 12px;
+    color: #6c757d;
+  }
+}
+
+.logout-item {
+  color: #e94560 !important;
+
+  .mat-icon {
+    color: #e94560 !important;
+  }
+}
+
+// ── Fix CDK overlay positioning ──
+.cdk-overlay-container {
+  position: fixed !important;
+  z-index: 10000 !important;
+}
+
+.cdk-overlay-connected-position-bounding-box {
+  position: absolute !important;
+}
+
+.cdk-overlay-pane {
+  position: absolute !important;
+}

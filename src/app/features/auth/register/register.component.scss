@@ -1,20 +1,66 @@
 @use '../../../../styles/tokens' as *;
 
-.register-page { display: flex; min-height: 100vh; }
+.auth-page {
+  display: flex;
+  min-height: 100vh;
+}
 
 .brand-panel {
-  flex: 1;
+  flex: 0 0 42%;
   background: $sidebar-bg;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   padding: $sp-xxl;
-  h1 { font-size: 2.5rem; margin-bottom: 8px;
-    .skill { color: #fff; }
-    .sync  { color: $accent; }
+}
+
+.brand-content {
+  max-width: 400px;
+}
+
+.brand-logo {
+  font-size: 2.5rem;
+  margin-bottom: $sp-sm;
+
+  .skill {
+    color: #fff;
   }
-  p { color: $sidebar-text; font-size: 1rem; }
+
+  .sync {
+    color: $accent;
+  }
+}
+
+.brand-tagline {
+  color: $sidebar-text;
+  margin-bottom: $sp-xxl;
+  font-size: 1rem;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, .85);
+}
+
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
 }
 
 .form-panel {
@@ -22,24 +68,101 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: $sp-xxl;
+  padding: $sp-xl;
   background: $bg-white;
+  overflow-y: auto;
 }
 
 .form-container {
   width: 100%;
-  max-width: 450px;
-  h2 { margin-bottom: 4px; }
-  .subtitle { color: $text-secondary; margin-bottom: 28px; }
+  max-width: 440px;
+
+  h2 {
+    margin-bottom: 4px;
+    font-size: 1.6rem;
+  }
+
+  .subtitle {
+    color: $text-secondary;
+    margin-bottom: 28px;
+  }
 }
 
 .name-row {
   display: flex;
-  gap: 16px;
-  mat-form-field { flex: 1; }
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+  }
 }
 
-.full-width { width: 100%; }
+.full-width {
+  width: 100%;
+}
+
+// Password requirements box
+.password-requirements {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: -8px 0 16px 0;
+  animation: fadeIn 0.2s ease;
+
+  .req-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: $text-secondary;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #dc2626; // Red by default
+    margin-bottom: 6px;
+    transition: color 0.2s ease;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &.valid {
+      color: #16a34a; // Green when valid
+
+      mat-icon {
+        color: #16a34a;
+      }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 .submit-btn {
   width: 100%;
@@ -51,9 +174,29 @@
   margin-top: 8px;
 }
 
-.login-link {
+.switch-link {
   text-align: center;
   margin-top: 20px;
+  font-size: 14px;
   color: $text-secondary;
-  a { color: $accent; font-weight: 600; }
+
+  a {
+    color: $accent;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-page {
+    flex-direction: column;
+  }
+
+  .brand-panel {
+    flex: none;
+    padding: $sp-xl;
+  }
 }
