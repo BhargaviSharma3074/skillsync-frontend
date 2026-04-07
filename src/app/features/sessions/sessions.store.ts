@@ -57,6 +57,7 @@ export const SessionsStore = signalStore(
       },
 
       async book(payload: any): Promise<string> {   // ← return type added
+        console.log("API PAYLOAD:", payload);
   patchState(store, { loading: true });
   try {
     const session = await firstValueFrom(svc.bookSession(payload));

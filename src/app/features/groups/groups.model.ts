@@ -5,6 +5,7 @@ export interface Group {
   memberCount: number;
   createdBy: string | number;
   createdByUserId: string | number;
+  createdByName?: string;
   skills: string[];
   isPublic: boolean;
   lastActive?: string;

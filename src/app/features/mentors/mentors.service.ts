@@ -105,24 +105,31 @@ export class MentorsService {
   private api = inject(ApiService);
   private userService = inject(UserService);
 
+  // ✅ FIXED: handle paginated response
   search(filter: MentorFilter): Observable<Mentor[]> {
     console.log('🔍 MentorsService.search() called with filter:', filter);
-    
-    return this.api.get<RawMentorResponse[]>('/mentors', filter as Record<string, any>).pipe(
+
+    return this.api.get<any>('/mentors', filter as Record<string, any>).pipe(
+      tap(res => {
+        console.log('📥 Raw mentors response:', res);
+      }),
+
+      // ✅ FIX: extract content array
+      map(res => res?.content ?? []),
+
       tap(mentors => {
-        console.log('📥 Raw mentors received from backend:', mentors);
         console.log(`   Total mentors: ${mentors.length}`);
       }),
+
       switchMap(mentors => {
         console.log('🔄 Starting to enrich mentors with user data...');
         return this.enrichMentorsWithUserData(mentors);
       }),
+
       tap(enriched => {
-        console.log('✅ Mentors enriched with user data:', enriched);
-        enriched.forEach(m => {
-          console.log(`   - Mentor ${m.id}: "${m.name}" (userId: ${m.userId})`);
-        });
+        console.log('✅ Mentors enriched:', enriched);
       }),
+
       catchError(err => {
         console.error('❌ Mentor search failed:', err);
         return of([]);
@@ -132,11 +139,14 @@ export class MentorsService {
 
   getById(id: string): Observable<Mentor> {
     console.log(`🔍 MentorsService.getById(${id}) called`);
-    
+
     return this.api.get<RawMentorResponse>(`/mentors/${id}`).pipe(
       tap(mentor => console.log('📥 Raw mentor received:', mentor)),
+
       switchMap(mentor => this.enrichMentorWithUserData(mentor)),
+
       tap(enriched => console.log('✅ Mentor enriched:', enriched)),
+
       catchError(err => {
         console.error('❌ Mentor fetch failed:', err);
         throw err;
@@ -145,63 +155,43 @@ export class MentorsService {
   }
 
   private enrichMentorWithUserData(rawMentor: RawMentorResponse): Observable<Mentor> {
-    console.log(`🔄 Enriching single mentor ${rawMentor.id} (userId: ${rawMentor.userId})`);
-    
     return this.userService.getUserById(rawMentor.userId).pipe(
-      tap(user => console.log(`✅ User data received for mentor ${rawMentor.id}:`, user)),
       map(user => this.mapToMentor(rawMentor, user)),
-      catchError(err => {
-        console.warn(`⚠️ Failed to fetch user for mentor ${rawMentor.id}, using fallback`, err);
+
+      catchError(() => {
         return of(this.mapToMentor(rawMentor, null));
       })
     );
   }
 
   private enrichMentorsWithUserData(rawMentors: RawMentorResponse[]): Observable<Mentor[]> {
-    if (rawMentors.length === 0) {
-      console.log('ℹ️ No mentors to enrich');
-      return of([]);
-    }
+    if (!rawMentors.length) return of([]);
 
     const userIds = [...new Set(rawMentors.map(m => m.userId))];
-    console.log(`🔄 Fetching user data for ${userIds.length} unique users:`, userIds);
 
-    const userRequests = userIds.map(id => {
-      return this.userService.getUserById(id).pipe(
-        catchError(err => {
-          console.warn(`⚠️ Failed to fetch user ${id}, using null`, err);
-          return of(null);
-        })
-      );
-    });
+    const userRequests = userIds.map(id =>
+      this.userService.getUserById(id).pipe(
+        catchError(() => of(null))
+      )
+    );
 
     return forkJoin(userRequests).pipe(
       map(users => {
-        console.log(`✅ Received ${users.length} user responses`);
-        
         const userMap = new Map();
+
         users.forEach((user, index) => {
-          if (user) {
-            userMap.set(userIds[index], user);
-            console.log(`   ✓ User ${userIds[index]}: ${user.name}`);
-          } else {
-            console.log(`   ✗ User ${userIds[index]}: null (failed)`);
-          }
+          if (user) userMap.set(userIds[index], user);
         });
 
-        console.log('🔗 Mapping mentors with user data...');
-        return rawMentors.map(mentor => {
-          const user = userMap.get(mentor.userId);
-          const mapped = this.mapToMentor(mentor, user);
-          console.log(`   - Mentor ${mentor.id} + User ${mentor.userId} = "${mapped.name}"`);
-          return mapped;
-        });
+        return rawMentors.map(mentor =>
+          this.mapToMentor(mentor, userMap.get(mentor.userId))
+        );
       })
     );
   }
 
   private mapToMentor(raw: RawMentorResponse, user: any): Mentor {
-    const mentor: Mentor = {
+    return {
       id: String(raw.id),
       userId: String(raw.userId),
       name: user?.name || `Mentor #${raw.id}`,
@@ -217,14 +207,5 @@ export class MentorsService {
       availability: raw.availability,
       status: raw.status
     };
-
-    console.log(`🎯 Mapped mentor:`, {
-      id: mentor.id,
-      userId: mentor.userId,
-      name: mentor.name,
-      hasUserData: !!user
-    });
-
-    return mentor;
   }
 }

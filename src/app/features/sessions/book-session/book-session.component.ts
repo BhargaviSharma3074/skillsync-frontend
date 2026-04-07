@@ -1,3 +1,5 @@
+
+import { firstValueFrom } from 'rxjs';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -12,12 +14,12 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MentorsStore } from '../../mentors/mentors.store';
 import { SessionsStore } from '../sessions.store';
 import { ToastService } from '../../../shared/components/toast/toast.service';
-import { AuthService } from '../../../core/auth/auth.service'; // ← add this
+import { AuthService } from '../../../core/auth/auth.service';
 import { avatarColor } from '../../../shared/utils/avatar-color';
 import { InitialsPipe } from '../../../shared/pipes/initials.pipe';
-import { environment } from '../../../../environments/environment'; // ← add this
+import { PaymentService } from '../../../core/services/payment.service';
 
-declare var Razorpay: any; // ← Razorpay global from CDN script
+declare var Razorpay: any;
 
 @Component({
   selector: 'app-book-session',
@@ -35,9 +37,11 @@ export class BookSessionComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private toast = inject(ToastService);
-  private auth = inject(AuthService); // ← inject auth
+  private auth = inject(AuthService);
+
   mentorStore = inject(MentorsStore);
   sessionStore = inject(SessionsStore);
+  private paymentService = inject(PaymentService);
 
   avatarColor = avatarColor;
 
@@ -71,7 +75,7 @@ export class BookSessionComponent implements OnInit {
 
   onDatePicked(date: Date | null) {
     if (!date || !this.dateFilter(date)) {
-      this.toast.error('Please select a date within the allowed range');
+      this.toast.error('Please select a valid date');
       this.selectedDate.set(null);
       return;
     }
@@ -88,15 +92,17 @@ export class BookSessionComponent implements OnInit {
     const now = new Date();
     const isToday =
       selected.getFullYear() === now.getFullYear() &&
-      selected.getMonth()    === now.getMonth()    &&
+      selected.getMonth()    === now.getMonth() &&
       selected.getDate()     === now.getDate();
 
     if (!isToday) return allSlots;
 
     const currentMins = now.getHours() * 60 + now.getMinutes();
+
     return allSlots.map(slot => {
       const parsed = this.parseSlotTime(slot.time);
       if (!parsed) return { ...slot, available: false };
+
       return (parsed.hours * 60 + parsed.minutes) <= currentMins + 30
         ? { ...slot, available: false }
         : slot;
@@ -106,23 +112,45 @@ export class BookSessionComponent implements OnInit {
   private parseSlotTime(time: string) {
     const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
     if (!match) return null;
+
     let hours = parseInt(match[1], 10);
     const minutes = parseInt(match[2], 10);
     const period = match[3].toUpperCase();
+
     if (period === 'PM' && hours !== 12) hours += 12;
     if (period === 'AM' && hours === 12) hours = 0;
+
     return { hours, minutes };
   }
 
-  hasAvailableSlots() {
-    return this.getFilteredSlots().some(s => s.available);
-  }
+  // 🔥 NEW FUNCTION (FIX)
+  private convertTo24Hour(time: string): string {
+  const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return time;
+
+  let hours = parseInt(match[1], 10);
+  const minutes = match[2];
+  const period = match[3].toUpperCase();
+
+  if (period === 'PM' && hours !== 12) hours += 12;
+  if (period === 'AM' && hours === 12) hours = 0;
+
+  const hh = hours.toString().padStart(2, '0');
+
+  // ✅ ADD SECONDS (THIS FIXES 500)
+  return `${hh}:${minutes}:00`;
+}
 
   selectSlot(time: string)  { this.selectedSlot.set(time); }
   selectDuration(d: number) { this.selectedDuration.set(d); }
+
   clearDate() {
     this.selectedDate.set(null);
     this.selectedSlot.set(null);
+  }
+
+  hasAvailableSlots(): boolean {
+    return this.getFilteredSlots().some(s => s.available);
   }
 
   get totalCost(): number {
@@ -130,129 +158,102 @@ export class BookSessionComponent implements OnInit {
     return Math.round((rate / 60) * this.selectedDuration());
   }
 
-  // ─── Main booking + payment flow ───────────────────────────────────────────
-
   async confirmBooking() {
     const date = this.selectedDate();
     const slot = this.selectedSlot();
 
     if (!date || !slot || !this.sessionTopic) {
-      this.toast.error('Please fill all required fields');
+      this.toast.error('Please fill all fields');
       return;
     }
 
-    const chosenSlot = this.getFilteredSlots().find(s => s.time === slot);
-    if (!chosenSlot?.available) {
-      this.toast.error('Selected time slot is no longer available');
-      this.selectedSlot.set(null);
-      return;
-    }
+    console.log("BOOK PAYLOAD:", {
+      mentorId: this.mentorId,
+      date: date.toISOString().split('T')[0],
+      time: slot,
+      duration: this.selectedDuration(),
+      topic: this.sessionTopic
+    });
 
     try {
-      // Step 1: Create the session — we need sessionId for payment
       const sessionId = await this.sessionStore.book({
-        mentorId: this.mentorId,
-        date: date.toISOString().split('T')[0],
-        time: slot,
-        duration: this.selectedDuration(),
+        mentorId: Number(this.mentorId),
+        sessionDate: date.toISOString().split('T')[0],
+        startTime: this.convertTo24Hour(slot), // 🔥 FIX APPLIED
+        durationMinutes: this.selectedDuration(),
         topic: this.sessionTopic
       });
 
-      // Step 2: Create a Razorpay order via your payment service
-      const token = this.auth.getToken();
-      const userId = this.auth.currentUser()?.id;
-
-      const orderRes = await fetch(`${environment.apiUrl}/payments/initiate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'X-User-Id': String(userId)
-        },
-        body: JSON.stringify({ sessionId: Number(sessionId) })
-      });
-
-      if (!orderRes.ok) {
-        const err = await orderRes.json().catch(() => ({}));
-        throw new Error(err.message ?? 'Failed to initiate payment');
+      if (!sessionId) {
+        throw new Error('Session creation failed');
       }
 
-      const order = await orderRes.json();
-      // order shape: { sessionId, gatewayOrderId, amount, currency, razorpayKeyId }
+      const order = await firstValueFrom(
+        this.paymentService.initiatePayment(Number(sessionId))
+      );
 
-      // Step 3: Open Razorpay checkout
-      this.openRazorpay(order, Number(sessionId), date, slot);
+      console.log('ORDER:', order);
+
+      this.openRazorpay(order, Number(sessionId));
 
     } catch (err: any) {
-      this.toast.error(err.message ?? 'Something went wrong. Please try again.');
+      this.toast.error(err.message || 'Something went wrong');
       console.error(err);
     }
   }
 
-  private openRazorpay(order: any, sessionId: number, date: Date, slot: string) {
+  private openRazorpay(order: any, sessionId: number) {
     const mentor = this.mentorStore.selectedMentor();
 
     const options = {
-      key: order.razorpayKeyId,                      // comes from your backend
-      amount: order.amount.toString(),               // already in paise from backend
+      key: order.key || order.razorpayKeyId,
+      amount: order.amount,
       currency: order.currency,
       name: 'SkillSync',
-      description: `Session with ${mentor?.name ?? 'Mentor'}`,
-      order_id: order.gatewayOrderId,
+      description: `Session with ${mentor?.name || 'Mentor'}`,
+      order_id: order.orderId || order.gatewayOrderId,
+
       handler: (response: any) => {
-        // Razorpay calls this on success
         this.verifyPayment(response, sessionId);
       },
+
       prefill: {
-        name:  this.auth.currentUser()?.firstName ?? '',
-        email: this.auth.currentUser()?.email ?? ''
+        name: this.auth.currentUser()?.firstName || '',
+        email: this.auth.currentUser()?.email || ''
       },
+
       notes: {
-        sessionId: String(sessionId),
-        mentorId: this.mentorId
+        sessionId: String(sessionId)
       },
-      theme: { color: '#E53935' },
-      modal: {
-        ondismiss: () => {
-          this.toast.error('Payment cancelled. Your session is reserved but unpaid.');
-        }
-      }
+
+      theme: { color: '#E53935' }
     };
 
     const rzp = new Razorpay(options);
-    rzp.on('payment.failed', (response: any) => {
-      this.toast.error(`Payment failed: ${response.error.description}`);
+
+    rzp.on('payment.failed', (res: any) => {
+      this.toast.error('Payment failed: ' + res.error.description);
     });
+
     rzp.open();
   }
 
-  private async verifyPayment(razorpayResponse: any, sessionId: number) {
-    const token = this.auth.getToken();
-    const userId = this.auth.currentUser()?.id;
-
+  private async verifyPayment(response: any, sessionId: number) {
     try {
-      const verifyRes = await fetch(`${environment.apiUrl}/payments/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'X-User-Id': String(userId)
-        },
-        body: JSON.stringify({
+      await firstValueFrom(
+        this.paymentService.verifyPayment({
           sessionId,
-          gatewayOrderId:   razorpayResponse.razorpay_order_id,
-          gatewayPaymentId: razorpayResponse.razorpay_payment_id,
-          gatewaySignature: razorpayResponse.razorpay_signature
+          gatewayOrderId: response.razorpay_order_id,
+          gatewayPaymentId: response.razorpay_payment_id,
+          gatewaySignature: response.razorpay_signature
         })
-      });
+      );
 
-      if (!verifyRes.ok) throw new Error('Payment verification failed');
-
-      this.toast.success('Payment successful! Session confirmed 🎉');
+      this.toast.success('Payment successful 🎉');
       this.router.navigate(['/sessions']);
 
-    } catch (err: any) {
-      this.toast.error('Payment verification failed. Please contact support.');
+    } catch (err) {
+      this.toast.error('Payment verification failed');
       console.error(err);
     }
   }
