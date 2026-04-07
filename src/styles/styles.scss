@@ -144,7 +144,7 @@ a {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: var(--border-color);
   border-radius: 3px;
 }
 
@@ -170,8 +170,8 @@ a {
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e8e8e8;
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .menu-user-info {
@@ -180,12 +180,12 @@ a {
 
   strong {
     font-size: 14px;
-    color: #1e1e2d;
+    color: $text-primary;
   }
 
   span {
     font-size: 12px;
-    color: #6c757d;
+    color: $text-secondary;
   }
 }
 

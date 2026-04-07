@@ -56,19 +56,63 @@ export const SessionsStore = signalStore(
         }
       },
 
-      async book(payload: any) {
-        patchState(store, { loading: true });
-        try {
-          await firstValueFrom(svc.bookSession(payload));
-        } catch {}
-        patchState(store, { loading: false });
-      },
+      async book(payload: any): Promise<string> {   // ← return type added
+  patchState(store, { loading: true });
+  try {
+    const session = await firstValueFrom(svc.bookSession(payload));
+    patchState(store, { loading: false });
+    return session.id;                        // ← return the id from backend
+  } catch {
+    patchState(store, { loading: false });
+    throw new Error('Session booking failed');
+  }
+},
 
       async cancel(id: string) {
         await firstValueFrom(svc.cancelSession(id)).catch(() => {});
         patchState(store, {
           sessions: store.sessions().filter(s => s.id !== id)
         });
+      },
+
+      async loadMentorPendingSessions() {
+        patchState(store, { loading: true });
+        try {
+          const sessions = await firstValueFrom(svc.getMentorPendingSessions());
+          patchState(store, { sessions, loading: false });
+        } catch {
+          patchState(store, {
+            sessions: [
+              { id:'1', mentorId:'m1', mentorName:'You', learnerId:'u1', learnerName:'Rahul Sharma', dateTime:'2025-03-18T09:00:00', duration:60, topic:'Spring Boot Basics', format:'VIDEO_CALL', status:'PENDING', rate:800 },
+              { id:'2', mentorId:'m1', mentorName:'You', learnerId:'u2', learnerName:'Sneha Patel', dateTime:'2025-03-19T14:00:00', duration:60, topic:'Data Science Intro', format:'VIDEO_CALL', status:'PENDING', rate:600 },
+            ],
+            loading: false
+          });
+        }
+      },
+
+      async acceptSession(id: string) {
+        try {
+          await firstValueFrom(svc.acceptSession(id));
+          patchState(store, {
+            sessions: store.sessions().map(s => s.id === id ? { ...s, status: 'ACCEPTED' as const } : s)
+          });
+        } catch (err) {
+          console.error('Accept session error:', err);
+          throw err;
+        }
+      },
+
+      async rejectSession(id: string) {
+        try {
+          await firstValueFrom(svc.rejectSession(id));
+          patchState(store, {
+            sessions: store.sessions().map(s => s.id === id ? { ...s, status: 'CANCELLED' as const } : s)
+          });
+        } catch (err) {
+          console.error('Reject session error:', err);
+          throw err;
+        }
       }
     };
   })

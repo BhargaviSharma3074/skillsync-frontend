@@ -57,6 +57,10 @@ export const routes: Routes = [
       },
       {
         path: 'profile',
+        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
+      },
+      {
+        path: 'profile/edit',
         loadComponent: () => import('./features/profile/edit-profile/edit-profile.component').then(m => m.EditProfileComponent)
       },
       {
@@ -65,7 +69,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/admin-console/admin-console.component').then(m => m.AdminConsoleComponent)
       },
       // Placeholder routes
-      { path: 'notifications', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
+      {
+        path: 'notifications',
+        loadComponent: () => import('./features/notifications/notifications.component').then(m => m.NotificationsComponent)
+      },
       { path: 'settings', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
       { path: 'admin/users', loadComponent: () => import('./features/admin/admin-console/admin-console.component').then(m => m.AdminConsoleComponent) },
       { path: 'admin/approvals', loadComponent: () => import('./features/admin/admin-console/admin-console.component').then(m => m.AdminConsoleComponent) },

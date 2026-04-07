@@ -2,7 +2,11 @@
   <div class="navbar-spacer"></div>
 
   <div class="navbar-actions">
-    <button mat-icon-button matBadge="3" matBadgeColor="accent" matBadgeSize="small">
+    <button mat-icon-button (click)="themeService.toggleTheme()" [matTooltip]="themeService.isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+      <mat-icon>{{ themeService.isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
+    <button mat-icon-button matBadge="3" matBadgeColor="accent" matBadgeSize="small" routerLink="/notifications">
       <mat-icon>notifications_none</mat-icon>
     </button>
 

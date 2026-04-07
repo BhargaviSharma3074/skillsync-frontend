@@ -104,20 +104,37 @@ export class LoginComponent {
   // Error message signal
   errorMessage = signal<string | null>(null);
 
-  form = this.fb.nonNullable.group({
+  // Form logic
+  loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    rememberMe: [false]
   });
+
+  // Getters for cleaner template access
+  get email() { return this.loginForm.get('email')!; }
+  get password() { return this.loginForm.get('password')!; }
+
+  // New properties for the template
+  features = [
+    { icon: '🎯', title: 'Expert mentors matched to your goals' },
+    { icon: '📅', title: '1-on-1 sessions at your convenience' },
+    { icon: '👥', title: 'Peer learning groups & communities' },
+    { icon: '⭐', title: 'Track growth with ratings & reviews' }
+  ];
+
+  socialLoading: string | null = null;
+  loadingAuth = signal(false); // Alias or additional state if needed
 
   get loading() { return this.auth.loading(); }
 
   onSubmit() {
-    if (this.form.invalid) return;
+    if (this.loginForm.invalid) return;
 
     // Clear previous error
     this.errorMessage.set(null);
 
-    this.auth.login(this.form.getRawValue()).subscribe({
+    this.auth.login(this.loginForm.getRawValue()).subscribe({
       next: () => {
         this.errorMessage.set(null);
         this.router.navigate(['/dashboard']);
@@ -128,7 +145,7 @@ export class LoginComponent {
 
         if (err.status === 401 || err.status === 400) {
           this.errorMessage.set('Email or password is incorrect. Please try again.');
-          this.form.get('password')?.reset();
+          this.loginForm.get('password')?.reset();
         } else if (err.status === 403) {
           this.errorMessage.set('Your account has been deactivated. Contact support.');
         } else if (err.status === 0) {
@@ -142,5 +159,22 @@ export class LoginComponent {
 
   clearError() {
     this.errorMessage.set(null);
+  }
+
+  onForgotPassword() {
+    this.router.navigate(['/forgot-password']);
+  }
+
+  onSignUp() {
+    this.router.navigate(['/register']);
+  }
+
+  onSocialLogin(provider: string) {
+    this.socialLoading = provider;
+    console.log(`Social login with ${provider} triggered`);
+    // Mock simulation
+    setTimeout(() => {
+      this.socialLoading = null;
+    }, 2000);
   }
 }

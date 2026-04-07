@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { ActivatedRoute } from '@angular/router';
 import { ReviewsService, Review } from '../reviews.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { avatarColor } from '../../../shared/utils/avatar-color';
@@ -24,8 +25,12 @@ import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 })
 export class ReviewFormComponent implements OnInit {
   private svc = inject(ReviewsService);
+  private route = inject(ActivatedRoute);
   private toast = inject(ToastService);
   avatarColor = avatarColor;
+
+  mentorId = '';
+  mentorName = '';
 
   reviews = signal<Review[]>([]);
   hoverRating = 0;
@@ -33,12 +38,19 @@ export class ReviewFormComponent implements OnInit {
   comment = '';
 
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.mentorId = params['mentorId'] || '';
+      this.mentorName = params['mentorName'] || '';
+    });
+    this.loadReviews();
+  }
+
+  loadReviews() {
     this.svc.getMyReviews().subscribe({
       next: r => this.reviews.set(r),
-      error: () => this.reviews.set([
-        { id:'1', mentorId:'1', mentorName:'Priya Sharma', rating:5, comment:'Amazing session! Very clear explanations of Spring Boot concepts.', createdAt:'2025-03-10T10:00:00' },
-        { id:'2', mentorId:'2', mentorName:'Arjun Mehta', rating:4, comment:'Good intro to ML. Would book again.', createdAt:'2025-03-08T14:00:00' }
-      ])
+      error: () => {
+        // Fallback or handle error
+      }
     });
   }
 
@@ -49,9 +61,25 @@ export class ReviewFormComponent implements OnInit {
   }
 
   submit() {
-    if (!this.selectedRating || !this.comment) return;
-    this.toast.success('Review submitted!');
-    this.selectedRating = 0;
-    this.comment = '';
+    if (!this.selectedRating || !this.comment || !this.mentorId) {
+      if (!this.mentorId) this.toast.error('No mentor selected for review');
+      return;
+    }
+
+    this.svc.submitReview({
+      mentorId: this.mentorId,
+      rating: this.selectedRating,
+      comment: this.comment
+    }).subscribe({
+      next: () => {
+        this.toast.success('Review submitted successfully!');
+        this.selectedRating = 0;
+        this.comment = '';
+        this.loadReviews();
+      },
+      error: (err) => {
+        this.toast.error(err?.error?.message || 'Failed to submit review');
+      }
+    });
   }
 }

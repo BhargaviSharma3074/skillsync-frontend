@@ -4,7 +4,12 @@
 
   <!-- Submit review -->
   <div class="card" style="margin-bottom:24px">
-    <h3>Write a Review</h3>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+      <h3 style="margin:0">Write a Review</h3>
+      @if (mentorName) {
+        <span class="text-secondary">for <strong>{{ mentorName }}</strong></span>
+      }
+    </div>
     <div class="rating-select">
       @for (n of [1,2,3,4,5]; track n) {
         <span class="rate-star"

@@ -313,10 +313,13 @@
                   mat-flat-button
                   color="warn"
                   (click)="toggleJoin(g)"
-                  [disabled]="isPending(g.id)"
+                  [disabled]="isPending(g.id) || !g.active"
+                  [matTooltip]="!g.active ? 'This group is no longer active' : ''"
                 >
                   @if (isPending(g.id)) {
                     <mat-spinner diameter="18"></mat-spinner>
+                  } @else if (!g.active) {
+                    🚫 Group Inactive
                   } @else {
                     + Join Group
                   }

@@ -57,7 +57,11 @@
             <button mat-stroked-button color="warn" (click)="cancel(s.id)">Cancel</button>
           }
           @if (s.status === 'COMPLETED') {
-            <button mat-stroked-button color="primary" routerLink="/reviews">Review</button>
+            <button mat-stroked-button color="primary" 
+                    [routerLink]="['/reviews']" 
+                    [queryParams]="{ mentorId: s.mentorId, mentorName: s.mentorName }">
+              Review
+            </button>
           }
         </td>
       </ng-container>

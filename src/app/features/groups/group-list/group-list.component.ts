@@ -195,6 +195,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -216,6 +217,7 @@ import { Group } from '../groups.model';
     MatIconModule,
     MatTabsModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
     MatDialogModule,
     MatSnackBarModule,
     CreateGroupDialogComponent
@@ -317,6 +319,10 @@ export class GroupListComponent implements OnInit { // ← Make sure "export" is
     if (this.isCreator(group)) return;
     if (this.isAdmin) return;
     if (this.isPending(group.id)) return;
+    if (!group.active) {
+      this.snackBar.open('This group is no longer active and cannot be joined.', 'Close', { duration: 3000 });
+      return;
+    }
 
     this.pendingGroupIds.add(group.id);
 

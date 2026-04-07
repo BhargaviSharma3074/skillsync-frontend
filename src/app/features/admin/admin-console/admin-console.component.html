@@ -1,231 +1,221 @@
-<!-- 
-<div class="admin">
-  Header
-  <div class="admin-header">
+<div class="admin-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
     <div>
-      <h1>Admin Console</h1>
+      <h1>
+        @if (activeSection === 'users') { Manage Users }
+        @else if (activeSection === 'approvals') { Mentor Applications }
+        @else if (activeSection === 'skills') { Skill Catalog }
+        @else { Admin Dashboard }
+      </h1>
       <p class="text-secondary">
-        Platform overview — {{ today | date:'EEEE, MMMM d, y' }}
+        @if (activeSection === 'dashboard') { Platform Overview }
+        @else { Admin Control Panel }
+        — {{ today | date:'EEEE, MMMM d, y' }}
       </p>
     </div>
-    <span class="admin-badge">● ADMIN</span>
+    <div class="admin-badge">● System Administrator</div>
   </div>
 
-  Loading
   @if (store.loading()) {
-    <div class="loading-state">
-      <mat-spinner diameter="40" />
-      <p>Loading admin data...</p>
-    </div>
-  }
-
-  Error
-  @if (store.error() && !store.loading()) {
-    <div class="error-state">
-      <mat-icon>error_outline</mat-icon>
-      <p>{{ store.error() }}</p>
-      <button mat-flat-button color="warn" (click)="store.load()">
-        Retry
-      </button>
-    </div>
+  <div class="loading-state">
+    <mat-spinner diameter="40" />
+    <p>Syncing platform data...</p>
+  </div>
   }
 
   @if (!store.loading()) {
-
-    Stats
-    <div class="stats-grid">
-      @for (card of statCards(); track card.label) {
+    
+    <!-- DASHBOARD VIEW -->
+    @if (activeSection === 'dashboard') {
+      <div class="stats-grid">
+        @for (card of statCards(); track card.label) {
         <div class="stat-card card">
           <div class="stat-icon" [style.background]="card.color">
             {{ card.icon }}
           </div>
-          <div class="stat-value">{{ card.value }}</div>
-          <div class="stat-label">{{ card.label }}</div>
-          <div class="stat-change text-success">{{ card.change }}</div>
+          <div class="stat-content">
+            <div class="stat-value">{{ card.value }}</div>
+            <div class="stat-label">{{ card.label }}</div>
+            <div class="stat-change">{{ card.change }}</div>
+          </div>
         </div>
-      }
-    </div>
+        }
+      </div>
 
-    Middle row
-    <div class="middle-row">
+      <div class="admin-banner-card">
+        <div class="banner-content">
+          <div class="banner-text">
+            <h3>🚀 Platform Expansion — Add New Skills</h3>
+            <p>Expand the platform's reach by adding new trending technologies and skills for mentors and learners.</p>
+          </div>
+          <div class="banner-action">
+            <div class="skill-input-wrap">
+              <input type="text" [(ngModel)]="newSkillName" placeholder="e.g. Kotlin, Docker, Figma" (keyup.enter)="addSkill()" />
+              <button class="add-skill-btn" (click)="addSkill()">Add Skill →</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      Pending Mentor Approvals
-      <div class="card approvals-card">
+      <!-- Groups Management (Part of Dashboard) -->
+      <div class="card groups-card-full">
         <div class="card-header">
-          <h3>📋 Pending Mentor Approvals</h3>
-          <span class="pending-count">
-            {{ store.pendingApprovals().length }} pending
-          </span>
+          <h3>👥 Active Learning Groups</h3>
+          <span class="count-badge">{{ store.groups().length }} total groups</span>
         </div>
-
-        @if (store.pendingApprovals().length === 0) {
-          <div class="empty-approvals">
-            <mat-icon>check_circle</mat-icon>
-            <p>No pending approvals. All caught up!</p>
-          </div>
-        } @else {
-          <div class="table-wrapper">
-            <table class="approvals-table">
-              <thead>
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Group Name</th>
+                <th>Created By</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (g of store.groups(); track g.id) {
                 <tr>
-                  <th>#</th>
-                  <th>APPLICANT</th>
-                  <th>SKILLS</th>
-                  <th>EXP</th>
-                  <th>RATE</th>
-                  <th>ACTIONS</th>
+                  <td><strong>{{ g.name }}</strong></td>
+                  <td>User #{{ g.createdBy }}</td>
+                  <td>
+                    <span class="status-indicator" [class.active]="g.active">
+                      {{ g.active ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group">
+                      @if (g.active) {
+                        <button class="mini-btn reject" (click)="deactivateGroup(g.id)">Deactivate</button>
+                      }
+                      <button class="mini-btn delete" (click)="deleteGroup(g.id)">🗑 Delete</button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                @for (a of store.pendingApprovals(); track a.id; let i = $index) {
-                  <tr>
-                    <td>{{ i + 1 }}</td>
-                    <td>
-                      <div class="applicant-cell">
-                        <span class="avatar sm"
-                              [style.background]="avatarColor(a.name)">
-                          {{ a.name | initials }}
-                        </span>
-                        <div>
-                          <strong>{{ a.name }}</strong>
-                          <div class="text-light" style="font-size:12px">
-                            {{ a.email }}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      @for (s of a.skills; track s) {
-                        <span class="chip">{{ s }}</span>
-                      }
-                      @if (a.skills.length === 0) {
-                        <span class="text-light">No skills listed</span>
-                      }
-                    </td>
-                    <td>{{ a.experience }} yrs</td>
-                    <td>₹{{ a.hourlyRate }}/hr</td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn approve"
-                                (click)="approveAndRefresh(a.id)">
-                          ✓ Approve
-                        </button>
-                        <button class="action-btn reject"
-                                (click)="rejectAndRefresh(a.id)">
-                          ✕ Reject
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        }
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
+    }
 
-      Recent Activity
-      <div class="card activity-card">
-        <h3>🔔 Recent Activity</h3>
-        <div class="activity-list">
-          @for (item of store.recentActivity(); track item.text) {
-            <div class="activity-item">
-              <mat-icon [style.color]="item.iconColor">{{ item.icon }}</mat-icon>
-              <div class="activity-text">
-                <span [innerHTML]="item.text"></span>
-                <span class="text-light activity-time">{{ item.time }}</span>
-              </div>
-            </div>
+    <!-- USER MANAGEMENT VIEW -->
+    @if (activeSection === 'users') {
+      <div class="card management-card full-width-card">
+        <div class="card-header">
+          <h3>👤 User Moderation</h3>
+          <span class="count-badge">{{ users.length }} active users</span>
+        </div>
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of users; track user.id) {
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <span class="avatar sm" [style.background]="avatarColor(user.username)">
+                      {{ user.username | initials }}
+                    </span>
+                    <div class="user-info">
+                      <span class="user-name">{{ user.username }}</span>
+                      <span class="user-email">{{ user.email }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="role-chip">{{ user.role }}</span></td>
+                <td>
+                  <span class="status-indicator" [class.active]="user.status === 'ACTIVE'" [class.blocked]="user.status === 'BLOCKED'">
+                    {{ user.status }}
+                  </span>
+                </td>
+                <td>
+                  <button class="status-btn" [class.block-btn]="user.status === 'ACTIVE'" [class.unblock-btn]="user.status !== 'ACTIVE'" (click)="toggleUserStatus(user)">
+                    {{ user.status === 'ACTIVE' ? 'Block' : 'Unblock' }}
+                  </button>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- MENTOR APPROVALS VIEW -->
+    @if (activeSection === 'approvals') {
+      <div class="card management-card full-width-card">
+        <div class="card-header">
+          <h3>📋 Mentor Applications</h3>
+          <span class="count-badge text-warn">{{ store.pendingApprovals().length }} pending review</span>
+        </div>
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Applicant</th>
+                <th>Skills</th>
+                <th>Experience</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (a of store.pendingApprovals(); track a.id) {
+              <tr>
+                <td>{{ a.name }}</td>
+                <td>
+                  @for (s of a.skills; track s) {
+                    <span class="role-chip" style="margin-right: 4px;">{{ s }}</span>
+                  }
+                </td>
+                <td>{{ a.experience }} yrs</td>
+                <td>
+                  <div class="btn-group">
+                    <button class="mini-btn approve" (click)="approveAndRefresh(a.id)">✓ Approve</button>
+                    <button class="mini-btn reject" (click)="rejectAndRefresh(a.id)">✕ Reject</button>
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+          @if (store.pendingApprovals().length === 0) {
+            <p class="empty-msg">No pending applications at the moment.</p>
           }
         </div>
       </div>
-    </div>
+    }
 
-    Platform Performance
-    <div class="card performance-card">
-      <h3>📈 Platform Performance (last 30 days)</h3>
-      <div class="metrics">
-        @for (m of store.performance(); track m.label) {
-          <div class="metric-row">
-            <span class="metric-label">{{ m.label }}</span>
-            <div class="metric-bar-wrap">
-              <mat-progress-bar
-                mode="determinate"
-                [value]="m.value"
-                [style.--mdc-linear-progress-active-indicator-color]="m.color">
-              </mat-progress-bar>
+    <!-- SKILLS CATALOG VIEW -->
+    @if (activeSection === 'skills') {
+      <div class="card skills-card full-width-card">
+        <div class="card-header">
+          <h3>🏷️ Skill Management Catalog</h3>
+          <div class="header-action">
+            <div class="skill-input-mini">
+              <input type="text" [(ngModel)]="newSkillName" placeholder="Add new skill..." (keyup.enter)="addSkill()" />
+              <button (click)="addSkill()">Add</button>
             </div>
-            <span class="metric-value">{{ m.value }}%</span>
           </div>
-        }
-      </div>
-    </div>
-
-  }
-</div> -->
-
-<!-- Add this AFTER the Platform Performance section -->
-
-<!-- Groups Management -->
-<div class="card groups-card">
-  <div class="card-header">
-    <h3>👥 Groups Management</h3>
-    <span class="pending-count">{{ store.groups().length }} total groups</span>
-  </div>
-
-  @if (store.groups().length === 0) {
-    <div class="empty-approvals">
-      <mat-icon>group_off</mat-icon>
-      <p>No groups created yet.</p>
-    </div>
-  } @else {
-    <div class="table-wrapper">
-      <table class="approvals-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>GROUP NAME</th>
-            <th>DESCRIPTION</th>
-            <th>CREATED BY</th>
-            <th>CREATED AT</th>
-            <th>STATUS</th>
-            <th>ACTIONS</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (g of store.groups(); track g.id; let i = $index) {
-            <tr>
-              <td>{{ i + 1 }}</td>
-              <td><strong>{{ g.name }}</strong></td>
-              <td class="desc-cell">{{ g.description }}</td>
-              <td>User #{{ g.createdBy }}</td>
-              <td>{{ g.createdAt | date:'MMM d, y' }}</td>
-              <td>
-                @if (g.active) {
-                  <span class="badge-status accepted">Active</span>
-                } @else {
-                  <span class="badge-status cancelled">Inactive</span>
-                }
-              </td>
-              <td>
-                <div class="action-buttons">
-                  @if (g.active) {
-                    <button class="action-btn reject"
-                            (click)="deactivateGroup(g.id)">
-                      Deactivate
-                    </button>
-                  }
-                  <button class="action-btn reject"
-                          style="background:#7f1d1d"
-                          (click)="deleteGroup(g.id)">
-                    🗑 Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
+        </div>
+        <div class="skills-list large-list">
+          @for (skill of skills; track skill) {
+          <div class="skill-tag large">
+            <span>{{ skill }}</span>
+            <button class="remove-skill" (click)="removeSkill(skill)">×</button>
+          </div>
           }
-        </tbody>
-      </table>
-    </div>
+        </div>
+      </div>
+    }
+
   }
 </div>

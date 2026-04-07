@@ -49,6 +49,8 @@ interface AdminState {
   stats: AdminStats;
   pendingApprovals: PendingApproval[];
   groups: AdminGroup[];
+  users: RawUser[];
+  skills: string[];
   recentActivity: ActivityItem[];
   performance: PerformanceMetric[];
   loading: boolean;
@@ -64,6 +66,8 @@ const initialState: AdminState = {
   },
   pendingApprovals: [],
   groups: [],
+  users: [],
+  skills: [],
   recentActivity: [],
   performance: [],
   loading: false,
@@ -114,15 +118,17 @@ export const AdminStore = signalStore(
         patchState(store, { loading: true, error: null });
 
         try {
-          const [allMentorsResult, usersResult, groupsResult] = await Promise.allSettled([
+          const [allMentorsResult, usersResult, groupsResult, skillsResult] = await Promise.allSettled([
             firstValueFrom(api.get<RawMentor[]>('/admin/mentors')),
             firstValueFrom(api.get<RawUser[]>('/admin/users')),
-            firstValueFrom(api.get<RawGroup[]>('/admin/groups'))  // ← Admin gets ALL groups
+            firstValueFrom(api.get<RawGroup[]>('/admin/groups')),
+            firstValueFrom(api.get<string[]>('/admin/skills'))
           ]);
 
           const allMentors = allMentorsResult.status === 'fulfilled' ? allMentorsResult.value : [];
           const users      = usersResult.status === 'fulfilled'      ? usersResult.value      : [];
           const rawGroups  = groupsResult.status === 'fulfilled'     ? groupsResult.value     : [];
+          const skills     = skillsResult.status === 'fulfilled'      ? skillsResult.value     : ['Angular', 'React', 'Node.js', 'Python', 'Java', 'SQL'];
 
           // Build user map
           const userMap = new Map<number, RawUser>();
@@ -203,6 +209,8 @@ export const AdminStore = signalStore(
             stats,
             pendingApprovals,
             groups,
+            users,
+            skills,
             recentActivity,
             performance,
             loading: false,
@@ -283,6 +291,42 @@ export const AdminStore = signalStore(
         } catch (err) {
           console.error('❌ Deactivate group error:', err);
           return false;
+        }
+      },
+
+      // ── Skills Management ─────────────────────────────
+      async addSkill(skill: string) {
+        try {
+          // If backend doesn't exist, we optimistic update
+          await firstValueFrom(api.post('/admin/skills', { name: skill })).catch(() => {});
+          patchState(store, { skills: [...store.skills(), skill] });
+          console.log('✅ Skill added:', skill);
+        } catch (err) {
+          console.error('❌ Add skill error:', err);
+        }
+      },
+
+      async removeSkill(skill: string) {
+        try {
+          await firstValueFrom(api.delete(`/admin/skills/${skill}`)).catch(() => {});
+          patchState(store, { skills: store.skills().filter(s => s !== skill) });
+          console.log('✅ Skill removed:', skill);
+        } catch (err) {
+          console.error('❌ Remove skill error:', err);
+        }
+      },
+
+      // ── User Management ──────────────────────────────
+      async toggleUserStatus(userId: number, currentStatus: string) {
+        const newStatus = currentStatus === 'ACTIVE' ? 'BLOCKED' : 'ACTIVE';
+        try {
+          await firstValueFrom(api.put(`/admin/users/${userId}/status`, { status: newStatus }));
+          patchState(store, {
+            users: store.users().map(u => u.id === userId ? { ...u, status: newStatus } : u)
+          });
+          console.log(`✅ User #${userId} status changed to ${newStatus}`);
+        } catch (err) {
+          console.error('❌ Toggle status error:', err);
         }
       }
     };

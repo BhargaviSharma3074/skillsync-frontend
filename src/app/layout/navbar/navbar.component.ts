@@ -7,16 +7,19 @@ import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from '../../core/auth/auth.service';
 import { avatarColor } from '../../shared/utils/avatar-color';
 import { MatDividerModule } from '@angular/material/divider';
+import { ThemeService } from '../../core/services/theme.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatBadgeModule, MatDividerModule, MatButtonModule, MatMenuModule],
+  imports: [CommonModule, MatIconModule, MatBadgeModule, MatDividerModule, MatButtonModule, MatMenuModule, MatTooltipModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
   auth = inject(AuthService);
+  themeService = inject(ThemeService);
 
   get initials(): string {
     return this.auth.getInitials();

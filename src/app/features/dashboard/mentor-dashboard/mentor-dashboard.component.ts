@@ -4,7 +4,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
 import { AuthService } from '../../../core/auth/auth.service';
+import { SessionsStore } from '../../sessions/sessions.store';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 import { avatarColor } from '../../../shared/utils/avatar-color';
 import { InitialsPipe } from '../../../shared/pipes/initials.pipe';
 
@@ -12,19 +15,17 @@ interface MentorStats {
   icon: string; label: string; value: number | string; change: string; color: string;
 }
 
-interface PendingSession {
-  id: string; dateTime: string; learnerName: string; topic: string; duration: number; status: string;
-}
-
 @Component({
   selector: 'app-mentor-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatTableModule, DatePipe, InitialsPipe],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatTableModule, MatChipsModule, DatePipe, InitialsPipe],
   templateUrl: './mentor-dashboard.component.html',
   styleUrl: './mentor-dashboard.component.scss'
 })
 export class MentorDashboardComponent implements OnInit {
   auth = inject(AuthService);
+  sessionStore = inject(SessionsStore);
+  toast = inject(ToastService);
 
   greeting = '';
   today = new Date();
@@ -32,7 +33,14 @@ export class MentorDashboardComponent implements OnInit {
   avatarColor = avatarColor;
 
   stats: MentorStats[] = [];
-  pendingSessions: PendingSession[] = [];
+
+  get pendingSessions() {
+    return this.sessionStore.sessions().filter(s => s.status === 'PENDING');
+  }
+
+  get upcomingSessions() {
+    return this.sessionStore.sessions().filter(s => s.status === 'ACCEPTED');
+  }
 
   ngOnInit() {
     const name = this.auth.currentUser()?.firstName ?? 'Mentor';
@@ -46,10 +54,24 @@ export class MentorDashboardComponent implements OnInit {
       { icon: '👨‍🎓', label: 'Total Learners',      value: 34,     change: '+5 this month',  color: '#e3f2fd' }
     ];
 
-    this.pendingSessions = [
-      { id: '1', dateTime: '2025-03-18T09:00:00', learnerName: 'Rahul Sharma',  topic: 'Spring Boot Basics',     duration: 60, status: 'PENDING' },
-      { id: '2', dateTime: '2025-03-19T14:00:00', learnerName: 'Sneha Patel',   topic: 'Data Science Intro',     duration: 60, status: 'PENDING' },
-      { id: '3', dateTime: '2025-03-20T11:00:00', learnerName: 'Karan Mehta',   topic: 'Kubernetes Deployment',  duration: 90, status: 'PENDING' }
-    ];
+    this.sessionStore.loadMentorPendingSessions();
+  }
+
+  async accept(id: string) {
+    try {
+      await this.sessionStore.acceptSession(id);
+      this.toast.success('Session accepted! Learner has been notified.');
+    } catch {
+      this.toast.error('Failed to accept session. Please try again.');
+    }
+  }
+
+  async decline(id: string) {
+    try {
+      await this.sessionStore.rejectSession(id);
+      this.toast.success('Session declined. Learner has been notified.');
+    } catch {
+      this.toast.error('Failed to decline session. Please try again.');
+    }
   }
 }

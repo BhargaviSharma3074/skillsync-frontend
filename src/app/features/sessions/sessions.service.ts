@@ -22,4 +22,16 @@ export class SessionsService {
   cancelSession(id: string): Observable<void> {
     return this.api.delete<void>(`/sessions/${id}`);
   }
+
+  getMentorPendingSessions(): Observable<Session[]> {
+    return this.api.get<Session[]>('/sessions/mentor/pending');
+  }
+
+  acceptSession(id: string): Observable<Session> {
+    return this.api.put<Session>(`/sessions/${id}/accept`, {});
+  }
+
+  rejectSession(id: string): Observable<Session> {
+    return this.api.put<Session>(`/sessions/${id}/reject`, {});
+  }
 }

@@ -46,16 +46,33 @@ export class RegisterComponent {
   };
 
   // 2. Form comes AFTER the validator
-  form = this.fb.nonNullable.group({
+  // Form logic
+  registerForm = this.fb.nonNullable.group({
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, this.passwordValidator]]
   });
 
+  // Getters for cleaner template access
+  get firstName() { return this.registerForm.get('firstName')!; }
+  get lastName() { return this.registerForm.get('lastName')!; }
+  get email() { return this.registerForm.get('email')!; }
+  get password() { return this.registerForm.get('password')!; }
+
+  // Data for branding side panel
+  features = [
+    { icon: '🎯', title: 'Expert mentors matched to your goals' },
+    { icon: '📅', title: '1-on-1 sessions at your convenience' },
+    { icon: '👥', title: 'Peer learning groups & communities' },
+    { icon: '⭐', title: 'Track growth with ratings & reviews' }
+  ];
+
+  socialLoading: string | null = null;
+
   // Getters for real-time validation
   get pw(): string {
-    return this.form.get('password')?.value || '';
+    return this.registerForm.get('password')?.value || '';
   }
 
   get hasMinLength(): boolean { return this.pw.length >= 8; }
@@ -67,8 +84,8 @@ export class RegisterComponent {
   get loading() { return this.auth.loading(); }
 
   onSubmit() {
-    if (this.form.invalid) return;
-    const v = this.form.getRawValue();
+    if (this.registerForm.invalid) return;
+    const v = this.registerForm.getRawValue();
 
     this.auth.register({
       username: `${v.firstName}.${v.lastName}`.toLowerCase(),
@@ -86,5 +103,17 @@ export class RegisterComponent {
         else this.toast.error('Registration failed. Please try again.');
       }
     });
+  }
+
+  onSignIn() {
+    this.router.navigate(['/login']);
+  }
+
+  onSocialLogin(provider: string) {
+    this.socialLoading = provider;
+    console.log(`Social register with ${provider} triggered`);
+    setTimeout(() => {
+      this.socialLoading = null;
+    }, 2000);
   }
 }

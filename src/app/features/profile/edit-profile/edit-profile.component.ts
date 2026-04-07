@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -27,6 +28,7 @@ export class EditProfileComponent implements OnInit {
   private auth = inject(AuthService);
   private profileSvc = inject(ProfileService);
   private toast = inject(ToastService);
+  private router = inject(Router);
   avatarColor = avatarColor;
 
   form = this.fb.nonNullable.group({
@@ -68,7 +70,10 @@ export class EditProfileComponent implements OnInit {
       ...this.form.getRawValue(),
       skills: this.skills
     }).subscribe({
-      next: () => this.toast.success('Profile updated!'),
+      next: () => {
+        this.toast.success('Profile updated!');
+        this.router.navigate(['/profile']);
+      },
       error: () => this.toast.error('Update failed')
     });
   }

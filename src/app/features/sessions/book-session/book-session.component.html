@@ -1,10 +1,9 @@
-
 <div class="book-page">
   <div class="book-header">
     <div>
       <h1>Book a Session</h1>
       @if (mentorStore.selectedMentor(); as m) {
-        <p class="text-secondary">Schedule a 1-on-1 session with {{ m.name }}</p>
+      <p class="text-secondary">Schedule a 1-on-1 session with {{ m.name }}</p>
       }
     </div>
     <a routerLink="/mentors" class="back-link">← Back to Mentor Profile</a>
@@ -41,75 +40,65 @@
 
       <!-- Inline calendar -->
       <div class="inline-calendar-wrap">
-        <mat-calendar
-          [selected]="selectedDate()"
-          [minDate]="minDate"
-          [maxDate]="maxDate"
-          [dateFilter]="dateFilter"
+        <mat-calendar [selected]="selectedDate()" [minDate]="minDate" [maxDate]="maxDate" [dateFilter]="dateFilter"
           (selectedChange)="onDatePicked($event)">
         </mat-calendar>
       </div>
 
       @if (selectedDate()) {
-        <div class="selected-date-box">
-          <div class="selected-date-icon">📅</div>
-          <div>
-            <div class="selected-date-main">{{ selectedDate() | date:'EEEE, MMMM d, y' }}</div>
-            <div class="selected-date-sub text-secondary">Selected date</div>
-          </div>
-          <button class="change-btn" (click)="clearDate()">✕ Clear</button>
+      <div class="selected-date-box">
+        <div class="selected-date-icon">📅</div>
+        <div>
+          <div class="selected-date-main">{{ selectedDate() | date:'EEEE, MMMM d, y' }}</div>
+          <div class="selected-date-sub text-secondary">Selected date</div>
         </div>
+        <button class="change-btn" (click)="clearDate()">✕ Clear</button>
+      </div>
 
-        <!-- Time slots -->
-        <div class="slots-section">
-          <h4>Available slots on {{ selectedDate() | date:'MMMM d' }}</h4>
+      <!-- Time slots -->
+      <div class="slots-section">
+        <h4>Available slots on {{ selectedDate() | date:'MMMM d' }}</h4>
 
-          @if (!hasAvailableSlots()) {
-            <div class="no-slots-box">
-              <p>❌ No available slots</p>
-              <p class="text-secondary">All time slots have passed or are unavailable. Pick another date.</p>
-            </div>
-          } @else {
-            <div class="slots-grid">
-              @for (slot of getFilteredSlots(); track slot.time) {
-                <button class="slot-chip"
-                        [class.selected]="selectedSlot() === slot.time"
-                        [class.unavailable]="!slot.available"
-                        [disabled]="!slot.available"
-                        (click)="selectSlot(slot.time)">
-                  {{ slot.time }}
-                  @if (!slot.available) {
-                    <span class="slot-past-label">past</span>
-                  }
-                </button>
-              }
-            </div>
-            <p class="slots-hint text-secondary">⏰ Slots must be at least 30 min from now</p>
+        @if (!hasAvailableSlots()) {
+        <div class="no-slots-box">
+          <p>❌ No available slots</p>
+          <p class="text-secondary">All time slots have passed or are unavailable. Pick another date.</p>
+        </div>
+        } @else {
+        <div class="slots-grid">
+          @for (slot of getFilteredSlots(); track slot.time) {
+          <button class="slot-chip" [class.selected]="selectedSlot() === slot.time"
+            [class.unavailable]="!slot.available" [disabled]="!slot.available" (click)="selectSlot(slot.time)">
+            {{ slot.time }}
+            @if (!slot.available) {
+            <span class="slot-past-label">past</span>
+            }
+          </button>
           }
         </div>
+        <p class="slots-hint text-secondary">⏰ Slots must be at least 30 min from now</p>
+        }
+      </div>
 
-        <!-- Duration -->
-        <div class="duration-section">
-          <h4>Session Duration</h4>
-          <div class="duration-chips">
-            @for (d of durations; track d) {
-              <button class="slot-chip"
-                      [class.selected]="selectedDuration() === d"
-                      (click)="selectDuration(d)">
-                {{ d }} min
-              </button>
-            }
-          </div>
+      <!-- Duration -->
+      <div class="duration-section">
+        <h4>Session Duration</h4>
+        <div class="duration-chips">
+          @for (d of durations; track d) {
+          <button class="slot-chip" [class.selected]="selectedDuration() === d" (click)="selectDuration(d)">
+            {{ d }} min
+          </button>
+          }
         </div>
+      </div>
 
-        <!-- Topic -->
-        <div class="topic-section">
-          <h4>Session Topic</h4>
-          <mat-form-field appearance="outline" class="full-width">
-            <input matInput [(ngModel)]="sessionTopic"
-                   placeholder="Spring Boot REST APIs & JPA Relationships" />
-          </mat-form-field>
-        </div>
+      <!-- Topic -->
+      <div class="topic-section">
+        <h4>Session Topic</h4>
+        <mat-form-field appearance="outline" class="full-width">
+          <input matInput [(ngModel)]="sessionTopic" placeholder="Spring Boot REST APIs & JPA Relationships" />
+        </mat-form-field>
+      </div>
       }
     </div>
 
@@ -117,49 +106,48 @@
     <div class="book-right card">
       <h3>Session Summary</h3>
       @if (mentorStore.selectedMentor(); as m) {
-        <div class="summary-mentor">
-          <span class="avatar lg" [style.background]="avatarColor(m.name)">
-            {{ m.name | initials }}
-          </span>
-          <div>
-            <strong>{{ m.name }}</strong>
-            <div class="text-secondary">{{ m.title || 'Senior Engineer' }}</div>
-            <div class="star-rating">★★★★★ {{ m.rating }}</div>
-          </div>
+      <div class="summary-mentor">
+        <span class="avatar lg" [style.background]="avatarColor(m.name)">
+          {{ m.name | initials }}
+        </span>
+        <div>
+          <strong>{{ m.name }}</strong>
+          <div class="text-secondary">{{ m.title || 'Senior Engineer' }}</div>
+          <div class="star-rating">★★★★★ {{ m.rating }}</div>
         </div>
+      </div>
 
-        <div class="summary-details">
-          <div class="detail-row">
-            <span>Date</span>
-            <strong>{{ selectedDate() ? (selectedDate() | date:'MMMM d, y') : '—' }}</strong>
-          </div>
-          <div class="detail-row">
-            <span>Time</span>
-            <strong>{{ selectedSlot() ?? '—' }}</strong>
-          </div>
-          <div class="detail-row">
-            <span>Duration</span>
-            <strong>{{ selectedDuration() }} minutes</strong>
-          </div>
-          <div class="detail-row">
-            <span>Format</span>
-            <strong>Video Call</strong>
-          </div>
-          <div class="detail-row">
-            <span>Rate</span>
-            <strong>₹{{ m.hourlyRate }}/hr</strong>
-          </div>
-          <div class="detail-row total">
-            <span>Total</span>
-            <strong class="text-accent">₹{{ totalCost }}</strong>
-          </div>
+      <div class="summary-details">
+        <div class="detail-row">
+          <span>Date</span>
+          <strong>{{ selectedDate() ? (selectedDate() | date:'MMMM d, y') : '—' }}</strong>
         </div>
+        <div class="detail-row">
+          <span>Time</span>
+          <strong>{{ selectedSlot() ?? '—' }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Duration</span>
+          <strong>{{ selectedDuration() }} minutes</strong>
+        </div>
+        <div class="detail-row">
+          <span>Format</span>
+          <strong>Video Call</strong>
+        </div>
+        <div class="detail-row">
+          <span>Rate</span>
+          <strong>₹{{ m.hourlyRate }}/hr</strong>
+        </div>
+        <div class="detail-row total">
+          <span>Total</span>
+          <strong class="text-accent">₹{{ totalCost }}</strong>
+        </div>
+      </div>
 
-        <button mat-flat-button color="warn" class="confirm-btn"
-                [disabled]="!selectedDate() || !selectedSlot() || !sessionTopic"
-                (click)="confirmBooking()">
-          Confirm &amp; Pay →
-        </button>
+      <button mat-flat-button color="warn" class="confirm-btn"
+        [disabled]="!selectedDate() || !selectedSlot() || !sessionTopic" (click)="confirmBooking()">
+        Confirm &amp; Pay →
+      </button>
       }
     </div>
   </div>
