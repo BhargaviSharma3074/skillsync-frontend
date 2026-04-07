@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MentorsStore } from '../mentors.store';
+import { MentorFilter } from '../mentors.model';
 import { avatarColor } from '../../../shared/utils/avatar-color';
 import { InitialsPipe } from '../../../shared/pipes/initials.pipe';
 
@@ -38,10 +39,10 @@ export class MentorListComponent implements OnInit {
     this.store.search();
   }
 
-  removeChip(key: string) {
-    this.store.removeFilterChip(key);
-    this.store.search();
-  }
+  removeChip(key: keyof MentorFilter) {
+  this.store.removeFilterChip(key);
+  this.store.search();
+}
 
   clearAll() {
     this.searchQuery = '';

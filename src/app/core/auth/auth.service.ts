@@ -1,3 +1,4 @@
+
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -11,7 +12,6 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  // Store token in memory (per API docs) + sessionStorage for page refresh
   private _token = signal<string | null>(this.restoreToken());
   private _user = signal<User | null>(this.restoreUser());
   private _loading = signal(false);
@@ -53,8 +53,14 @@ export class AuthService {
       `${environment.apiUrl}/auth/login`,
       { email: payload.email, password: payload.password }
     ).pipe(
-      tap(res => { this.handleToken(res.token); this._loading.set(false); }),
-      catchError(err => { this._loading.set(false); throw err; })
+      tap(res => {
+        this.handleToken(res.token);
+        this._loading.set(false);
+      }),
+      catchError(err => {
+        this._loading.set(false);
+        throw err;
+      })
     );
   }
 
@@ -65,8 +71,33 @@ export class AuthService {
       `${environment.apiUrl}/auth/register`,
       { username: payload.username, email: payload.email, password: payload.password }
     ).pipe(
-      tap(res => { this.handleToken(res.token); this._loading.set(false); }),
-      catchError(err => { this._loading.set(false); throw err; })
+      tap(res => {
+        this.handleToken(res.token);
+        this._loading.set(false);
+      }),
+      catchError(err => {
+        this._loading.set(false);
+        throw err;
+      })
+    );
+  }
+
+  // ── Refresh Token ───────────────────────────────────────
+  // Called after admin approves mentor to get new JWT with MENTOR role
+  refreshToken(): Observable<AuthResponse> {
+    const currentToken = this._token();
+    return this.http.post<AuthResponse>(
+      `${environment.apiUrl}/auth/refresh`,
+      { token: currentToken }
+    ).pipe(
+      tap(res => {
+        this.handleToken(res.token);
+        console.log('✅ Token refreshed. New role:', this.userRole());
+      }),
+      catchError(err => {
+        console.error('❌ Token refresh failed:', err);
+        throw err;
+      })
     );
   }
 
@@ -74,11 +105,14 @@ export class AuthService {
   logout(): void {
     this._token.set(null);
     this._user.set(null);
-    sessionStorage.clear();
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
     this.router.navigate(['/login']);
   }
 
-  getToken(): string | null { return this._token(); }
+  getToken(): string | null {
+    return this._token();
+  }
 
   getInitials(): string {
     const u = this._user();
@@ -91,17 +125,25 @@ export class AuthService {
   // ── Private helpers ─────────────────────────────────────
   private handleToken(token: string): void {
     this._token.set(token);
-    // Store in sessionStorage for page-refresh persistence
-    sessionStorage.setItem('access_token', token);
+    localStorage.setItem('access_token', token);
 
     const decoded = decodeJwt(token);
     const user = this.buildUser(decoded);
     this._user.set(user);
-    sessionStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('user', JSON.stringify(user));
   }
 
   private buildUser(decoded: ReturnType<typeof decodeJwt>): User {
-    if (!decoded) return { id: '', email: '', username: '', firstName: 'User', lastName: '', role: 'ROLE_LEARNER' };
+    if (!decoded) {
+      return {
+        id: '',
+        email: '',
+        username: '',
+        firstName: 'User',
+        lastName: '',
+        role: 'ROLE_LEARNER'
+      };
+    }
 
     const email = decoded.sub ?? '';
     const username = email.split('@')[0];
@@ -109,7 +151,6 @@ export class AuthService {
     const firstName = capitalize(parts[0] ?? 'User');
     const lastName = capitalize(parts[1] ?? '');
 
-    // roles is an array like ["ROLE_LEARNER"] per JWT docs
     const roles = decoded.roles ?? [];
     const role = roles[0] ?? 'ROLE_LEARNER';
 
@@ -124,14 +165,15 @@ export class AuthService {
   }
 
   private restoreToken(): string | null {
-    const t = sessionStorage.getItem('access_token');
+    const t = localStorage.getItem('access_token');
     if (t && !isTokenExpired(t)) return t;
-    sessionStorage.clear();
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
     return null;
   }
 
   private restoreUser(): User | null {
-    const raw = sessionStorage.getItem('user');
+    const raw = localStorage.getItem('user');
     return raw ? JSON.parse(raw) : null;
   }
 }

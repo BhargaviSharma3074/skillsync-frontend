@@ -1,8 +1,14 @@
+
 @use '@angular/material' as mat;
 @use 'tokens' as *;
 @use 'typography';
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+// Import prebuilt Material theme (EASIEST SOLUTION)
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+
 
 // ── Angular Material custom theme ──
 $skillsync-theme: mat.define-theme((color: (theme-type: light,
@@ -29,6 +35,7 @@ html,
 body {
   height: 100%;
   background: $bg-body;
+  overflow: hidden;  // ← ADD THIS
 }
 
 a {
@@ -194,16 +201,20 @@ a {
 .cdk-overlay-container {
   position: fixed !important;
   z-index: 10000 !important;
+  pointer-events: none;       // ← ADD THIS
+}
+
+.cdk-overlay-backdrop {
+  pointer-events: auto;       // ← ADD THIS
+}
+
+.cdk-overlay-pane {
+  pointer-events: auto;       // ← ADD THIS
 }
 
 .cdk-overlay-connected-position-bounding-box {
   position: absolute !important;
 }
-
-.cdk-overlay-pane {
-  position: absolute !important;
-}
-
 
 // Toast / Snackbar styles
 .toast-success {

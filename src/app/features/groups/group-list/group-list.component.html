@@ -1,62 +1,334 @@
+<!-- 
 <div class="groups-page">
+
+  Header
   <div class="page-header">
     <div>
       <h1>Learning Groups</h1>
       <p class="text-secondary">Join peer communities and learn together</p>
     </div>
-    <button mat-flat-button color="warn">+ Create New Group</button>
+    
+    Only show Create button for Learners and Mentors
+    @if (canCreateGroup) {
+      <button mat-flat-button color="warn" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon> Create New Group
+      </button>
+    }
   </div>
 
-  <!-- Search -->
+  Search
   <mat-form-field appearance="outline" class="search-field">
     <mat-icon matPrefix>search</mat-icon>
-    <input matInput placeholder="Search groups by topic, skill..."
-           [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" />
+    <input matInput placeholder="Search groups..."
+           [(ngModel)]="searchQuery"
+           (ngModelChange)="onSearch()"
+           (keyup.enter)="onSearch()" />
   </mat-form-field>
 
-  <!-- Tabs -->
-  <mat-tab-group (selectedIndexChange)="onTabChange($event)" animationDuration="200ms">
+  Tabs
+  <mat-tab-group (selectedIndexChange)="onTabChange($event)"
+                 animationDuration="200ms">
     @for (tab of tabs; track tab) {
       <mat-tab [label]="tab" />
     }
   </mat-tab-group>
 
-  <!-- Group cards -->
-  <div class="groups-list">
-    @for (g of store.groups(); track g.id) {
-      <div class="group-card card">
-        <div class="group-card-body">
-          <div class="group-icon">{{ g.icon || '📚' }}</div>
-          <div class="group-info">
-            <h3>{{ g.name }}</h3>
-            <p class="group-meta text-secondary">
-              👥 {{ g.memberCount }} members • Created by {{ g.createdBy }}
-            </p>
-            <p class="group-desc">{{ g.description }}</p>
-            <div class="group-skills">
-              @for (s of g.skills; track s) {
-                <span class="chip">{{ s }}</span>
+  Loading
+  @if (store.loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40" />
+      <p>Loading groups...</p>
+    </div>
+  }
+
+  Error
+  @if (store.error() && !store.loading()) {
+    <div class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ store.error() }}</p>
+      <button mat-flat-button color="warn" (click)="store.loadGroups()">
+        Retry
+      </button>
+    </div>
+  }
+
+  Empty State
+  @if (!store.loading() && !store.error() && filteredGroups.length === 0) {
+    <div class="empty-state">
+      <mat-icon>group_off</mat-icon>
+      @if (activeTabIndex === 1) {
+        <p>You haven't joined any groups yet.</p>
+        <button mat-flat-button color="warn"
+                (click)="activeTabIndex = 0">
+          Browse All Groups
+        </button>
+      } @else {
+        <p>No groups found. Be the first to create one!</p>
+        @if (canCreateGroup) {
+          <button mat-flat-button color="warn" (click)="openCreateDialog()">
+            Create a Group
+          </button>
+        }
+      }
+    </div>
+  }
+
+  Groups List
+  @if (!store.loading() && !store.error() && filteredGroups.length > 0) {
+    <div class="groups-list">
+      @for (g of filteredGroups; track g.id) {
+        <div class="group-card card">
+          <div class="group-card-body">
+
+            Icon
+            <div class="group-icon">{{ g.icon || '📚' }}</div>
+
+            Info
+            <div class="group-info">
+              <div class="group-name-row">
+                <h3>{{ g.name }}</h3>
+
+                @if (isCreator(g)) {
+                  <span class="badge-creator">👑 Creator</span>
+                } @else if (g.joined) {
+                  <span class="badge-joined">✓ Member</span>
+                }
+
+                @if (!g.active) {
+                  <span class="badge-inactive">Inactive</span>
+                }
+              </div>
+
+              <p class="group-desc">{{ g.description }}</p>
+
+              <div class="group-footer text-secondary">
+                @if (g.lastActive) {
+                  <span>📅 Created {{ g.lastActive | date:'MMM d, y' }}</span>
+                }
+                <span>👤 Created by User #{{ g.createdByUserId }}</span>
+              </div>
+            </div>
+
+            Action
+            <div class="group-action">
+              @if (isAdmin) {
+                Admin can only delete
+                <button mat-stroked-button color="warn"
+                        (click)="deleteGroup(g)">
+                  <mat-icon>delete</mat-icon>
+                  Delete
+                </button>
+              } @else if (isCreator(g)) {
+                <button mat-stroked-button disabled class="creator-btn">
+                  👑 Your Group
+                </button>
+              } @else if (g.joined) {
+                <button mat-stroked-button color="warn"
+                        (click)="toggleJoin(g)">
+                  Leave Group
+                </button>
+              } @else {
+                <button mat-flat-button color="warn"
+                        (click)="toggleJoin(g)">
+                  + Join Group
+                </button>
               }
             </div>
-            <div class="group-footer text-secondary">
-              <span>🟢 Active {{ g.lastActive }}</span>
-              <span>💬 {{ g.postsThisWeek }} posts this week</span>
-              <span>🔓 {{ g.isPublic ? 'Public Group' : 'Private Group' }}</span>
-            </div>
-          </div>
-          <div class="group-action">
-            <div class="member-count">
-              <strong>{{ g.memberCount }}</strong>
-              <span>Members</span>
-            </div>
-            <button mat-flat-button
-                    [color]="g.joined ? 'primary' : 'warn'"
-                    (click)="toggleJoin(g)">
-              {{ g.joined ? '✓ Joined' : '+ Join Group' }}
-            </button>
+
           </div>
         </div>
-      </div>
-    }
+      }
+    </div>
+  }
+
+</div> -->
+
+
+<div class="groups-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Learning Groups</h1>
+      <p class="text-secondary">Join peer communities and learn together</p>
+    </div>
+
+    <div class="header-actions">
+      <button mat-stroked-button (click)="refreshGroups()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+
+      @if (canCreateGroup) {
+        <button mat-flat-button color="warn" (click)="openCreateDialog()">
+          <mat-icon>add</mat-icon>
+          Create New Group
+        </button>
+      }
+    </div>
   </div>
+
+  <!-- Search -->
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      placeholder="Search groups..."
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="onSearch()"
+      (keyup.enter)="onSearch()"
+    />
+  </mat-form-field>
+
+  <!-- Tabs -->
+  <mat-tab-group
+    (selectedIndexChange)="onTabChange($event)"
+    animationDuration="200ms"
+  >
+    @for (tab of tabs; track tab) {
+      <mat-tab [label]="tab"></mat-tab>
+    }
+  </mat-tab-group>
+
+  <!-- Loading -->
+  @if (store.loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading groups...</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (store.error() && !store.loading()) {
+    <div class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ store.error() }}</p>
+      <button mat-flat-button color="warn" (click)="store.loadGroups()">
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!store.loading() && !store.error() && filteredGroups.length === 0) {
+    <div class="empty-state">
+      <mat-icon>group_off</mat-icon>
+
+      @if (activeTabIndex === 1) {
+        <p>You haven't joined any groups yet.</p>
+        <button mat-flat-button color="warn" (click)="activeTabIndex = 0">
+          Browse All Groups
+        </button>
+      } @else {
+        <p>No groups found.</p>
+
+        @if (canCreateGroup) {
+          <button mat-flat-button color="warn" (click)="openCreateDialog()">
+            Create a Group
+          </button>
+        }
+      }
+    </div>
+  }
+
+  <!-- Groups List -->
+  @if (!store.loading() && !store.error() && filteredGroups.length > 0) {
+    <div class="groups-list">
+      @for (g of filteredGroups; track g.id) {
+        <div class="group-card card">
+          <div class="group-card-body">
+
+            <!-- Icon -->
+            <div class="group-icon">{{ g.icon || '📚' }}</div>
+
+            <!-- Info -->
+            <div class="group-info">
+              <div class="group-name-row">
+                <h3>{{ g.name }}</h3>
+
+                @if (isCreator(g)) {
+                  <span class="badge-creator">Creator</span>
+                } @else if (g.joined) {
+                  <span class="badge-joined">Member</span>
+                }
+
+                @if (!g.active) {
+                  <span class="badge-inactive">Inactive</span>
+                }
+              </div>
+
+              <p class="group-desc">{{ g.description }}</p>
+
+              <div class="group-footer text-secondary">
+                @if (g.lastActive) {
+                  <span>Created {{ g.lastActive | date:'MMM d, y' }}</span>
+                }
+                <span>Created by User #{{ g.createdByUserId }}</span>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="group-action">
+
+              <!-- ADMIN: only delete/deactivate actions -->
+              @if (isAdmin) {
+                <button
+                  mat-stroked-button
+                  color="warn"
+                  (click)="deleteGroup(g)"
+                  [disabled]="isPending(g.id)"
+                >
+                  @if (isPending(g.id)) {
+                    <mat-spinner diameter="18"></mat-spinner>
+                  } @else {
+                    <mat-icon>delete</mat-icon>
+                    Delete
+                  }
+                </button>
+
+              } @else if (isCreator(g)) {
+
+                <button mat-stroked-button disabled class="creator-btn">
+                  Your Group
+                </button>
+
+              } @else if (g.joined) {
+
+                <button
+                  mat-stroked-button
+                  color="warn"
+                  (click)="toggleJoin(g)"
+                  [disabled]="isPending(g.id)"
+                >
+                  @if (isPending(g.id)) {
+                    <mat-spinner diameter="18"></mat-spinner>
+                  } @else {
+                    Leave Group
+                  }
+                </button>
+
+              } @else {
+
+                <button
+                  mat-flat-button
+                  color="warn"
+                  (click)="toggleJoin(g)"
+                  [disabled]="isPending(g.id)"
+                >
+                  @if (isPending(g.id)) {
+                    <mat-spinner diameter="18"></mat-spinner>
+                  } @else {
+                    + Join Group
+                  }
+                </button>
+
+              }
+            </div>
+
+          </div>
+        </div>
+      }
+    </div>
+  }
+
 </div>

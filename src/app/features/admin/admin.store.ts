@@ -1,82 +1,289 @@
+
 import { inject } from '@angular/core';
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
-import {
-  AdminStats,
-  PendingApproval,
-  ActivityItem,
-  PerformanceMetric,
-  AdminService
-} from './admin.service';
+import { ApiService } from '../../core/api/api.service';
 import { firstValueFrom } from 'rxjs';
+
+export interface PendingApproval {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  experience: number;
+  skills: string[];
+  bio: string;
+  hourlyRate: number;
+  status: string;
+}
+
+export interface AdminGroup {
+  id: string;
+  name: string;
+  description: string;
+  createdBy: string | number;
+  createdAt: string;
+  active: boolean;
+}
+
+export interface AdminStats {
+  totalUsers: number;
+  activeMentors: number;
+  totalGroups: number;
+  platformRevenue: string;
+}
+
+export interface ActivityItem {
+  icon: string;
+  iconColor: string;
+  text: string;
+  time: string;
+}
+
+export interface PerformanceMetric {
+  label: string;
+  value: number;
+  color: string;
+}
 
 interface AdminState {
   stats: AdminStats;
   pendingApprovals: PendingApproval[];
+  groups: AdminGroup[];
   recentActivity: ActivityItem[];
   performance: PerformanceMetric[];
   loading: boolean;
+  error: string | null;
 }
 
-const initial: AdminState = {
-  stats: { totalUsers: 0, activeMentors: 0, sessionsBooked: 0, platformRevenue: '₹0' },
+const initialState: AdminState = {
+  stats: {
+    totalUsers: 0,
+    activeMentors: 0,
+    totalGroups: 0,
+    platformRevenue: '₹0'
+  },
   pendingApprovals: [],
+  groups: [],
   recentActivity: [],
   performance: [],
-  loading: false
+  loading: false,
+  error: null
 };
+
+interface RawMentor {
+  id: number;
+  userId: number;
+  name?: string;
+  username?: string;
+  email?: string;
+  bio?: string;
+  experience: number;
+  hourlyRate: number;
+  status: string;
+  skills?: string[];
+}
+
+interface RawUser {
+  id: number;
+  username: string;
+  name?: string;
+  email: string;
+  role: string;
+  status: string;
+}
+
+interface RawGroup {
+  id: number;
+  name: string;
+  description?: string;
+  createdBy?: number;
+  createdAt?: string;
+  active?: boolean;
+}
 
 export const AdminStore = signalStore(
   { providedIn: 'root' },
-  withState(initial),
+  withState(initialState),
   withMethods((store) => {
-    const svc = inject(AdminService);
+    const api = inject(ApiService);
+
     return {
+
+      // ── Load all admin data ────────────────────────────
       async load() {
-        patchState(store, { loading: true });
+        patchState(store, { loading: true, error: null });
+
         try {
-          const stats = await firstValueFrom(svc.getStats());
-          const approvals = await firstValueFrom(svc.getPendingApprovals());
-          patchState(store, { stats, pendingApprovals: approvals, loading: false });
-        } catch {
-          // Mock data
+          const [allMentorsResult, usersResult, groupsResult] = await Promise.allSettled([
+            firstValueFrom(api.get<RawMentor[]>('/admin/mentors')),
+            firstValueFrom(api.get<RawUser[]>('/admin/users')),
+            firstValueFrom(api.get<RawGroup[]>('/admin/groups'))  // ← Admin gets ALL groups
+          ]);
+
+          const allMentors = allMentorsResult.status === 'fulfilled' ? allMentorsResult.value : [];
+          const users      = usersResult.status === 'fulfilled'      ? usersResult.value      : [];
+          const rawGroups  = groupsResult.status === 'fulfilled'     ? groupsResult.value     : [];
+
+          // Build user map
+          const userMap = new Map<number, RawUser>();
+          users.forEach(u => userMap.set(u.id, u));
+
+          // Filter mentors by status
+          const activeMentors  = allMentors.filter(m => m.status === 'ACTIVE');
+          const pendingMentors = allMentors.filter(m => m.status === 'PENDING');
+
+          // Map pending approvals
+          const pendingApprovals: PendingApproval[] = pendingMentors.map(m => {
+            const user = userMap.get(m.userId);
+            return {
+              id: String(m.id),
+              userId: String(m.userId),
+              name: user?.name || user?.username || m.name || m.username || `User #${m.userId}`,
+              email: user?.email || m.email || '',
+              experience: m.experience ?? 0,
+              skills: m.skills ?? [],
+              bio: m.bio ?? '',
+              hourlyRate: m.hourlyRate ?? 0,
+              status: m.status
+            };
+          });
+
+          // Map groups
+          const groups: AdminGroup[] = rawGroups.map(g => ({
+            id: String(g.id),
+            name: g.name,
+            description: g.description ?? '',
+            createdBy: g.createdBy ?? 0,
+            createdAt: g.createdAt ?? '',
+            active: g.active ?? true
+          }));
+
+          const stats: AdminStats = {
+            totalUsers: users.length,
+            activeMentors: activeMentors.length,
+            totalGroups: groups.length,
+            platformRevenue: '₹0'
+          };
+
+          const recentActivity: ActivityItem[] = [
+            {
+              icon: 'people',
+              iconColor: '#16a34a',
+              text: `<strong>${stats.totalUsers}</strong> total users on platform`,
+              time: 'Now'
+            },
+            {
+              icon: 'school',
+              iconColor: '#0984e3',
+              text: `<strong>${activeMentors.length}</strong> active mentors`,
+              time: 'Now'
+            },
+            {
+              icon: 'pending_actions',
+              iconColor: '#f59e0b',
+              text: `<strong>${pendingApprovals.length}</strong> mentor applications pending`,
+              time: 'Now'
+            },
+            {
+              icon: 'groups',
+              iconColor: '#6c5ce7',
+              text: `<strong>${groups.length}</strong> learning groups on platform`,
+              time: 'Now'
+            }
+          ];
+
+          const performance: PerformanceMetric[] = [
+            { label: 'Mentor Approval Rate',    value: 78, color: '#16a34a' },
+            { label: 'Session Completion Rate', value: 91, color: '#0984e3' },
+            { label: 'User Satisfaction',       value: 88, color: '#e94560' },
+            { label: 'Platform Uptime',         value: 99, color: '#6c5ce7' }
+          ];
+
           patchState(store, {
-            stats: { totalUsers: 1248, activeMentors: 318, sessionsBooked: 4521, platformRevenue: '₹2.1M' },
-            pendingApprovals: [
-              { id: '1', name: 'Vivek Singh',  email: 'vivek@gmail.com',  skills: ['React', 'TypeScript'], experience: 5 },
-              { id: '2', name: 'Sneha Patel',  email: 'sneha@gmail.com',  skills: ['Data Science', 'R'],   experience: 3 },
-              { id: '3', name: 'Karan Mehta',  email: 'karan@gmail.com',  skills: ['DevOps', 'Kubernetes'], experience: 7 }
-            ],
-            recentActivity: [
-              { icon: 'check_circle', iconColor: '#4caf50', text: 'Mentor **Divya Verma** approved',        time: '5 min ago' },
-              { icon: 'event',        iconColor: '#2196f3', text: 'New session booked by **Rahul S.**',     time: '12 min ago' },
-              { icon: 'groups',       iconColor: '#ff9800', text: 'Group **DSA Prep** reached 100 members', time: '1h ago' },
-              { icon: 'star',         iconColor: '#f4c150', text: '**Priya Sharma** received 5-star review',time: '2h ago' },
-              { icon: 'person_add',   iconColor: '#2196f3', text: '14 new users registered today',         time: '3h ago' },
-              { icon: 'flag',         iconColor: '#e94560', text: 'Report filed on group **XYZ**',          time: '5h ago' }
-            ],
-            performance: [
-              { label: 'Session Completion Rate', value: 82, color: '#e94560' },
-              { label: 'Mentor Satisfaction Score', value: 91, color: '#4caf50' },
-              { label: 'Group Engagement Rate',    value: 65, color: '#ff9800' },
-              { label: 'Learner Retention',        value: 78, color: '#2196f3' }
-            ],
-            loading: false
+            stats,
+            pendingApprovals,
+            groups,
+            recentActivity,
+            performance,
+            loading: false,
+            error: null
+          });
+
+          console.log('✅ Admin loaded:', {
+            users: users.length,
+            activeMentors: activeMentors.length,
+            pendingMentors: pendingMentors.length,
+            groups: groups.length
+          });
+
+        } catch (err: any) {
+          console.error('❌ Admin load error:', err);
+          patchState(store, {
+            loading: false,
+            error: 'Failed to load admin data.'
           });
         }
       },
 
-      async approve(id: string) {
-        await firstValueFrom(svc.approveMentor(id)).catch(() => {});
-        patchState(store, {
-          pendingApprovals: store.pendingApprovals().filter(a => a.id !== id)
-        });
+      // ── Approve mentor ─────────────────────────────────
+      async approve(mentorId: string) {
+        try {
+          await firstValueFrom(api.put(`/admin/mentors/${mentorId}/approve`, {}));
+          patchState(store, {
+            pendingApprovals: store.pendingApprovals().filter(a => a.id !== mentorId),
+            stats: { ...store.stats(), activeMentors: store.stats().activeMentors + 1 }
+          });
+          console.log('✅ Mentor approved:', mentorId);
+        } catch (err) {
+          console.error('❌ Approve error:', err);
+        }
       },
 
-      async reject(id: string) {
-        await firstValueFrom(svc.rejectMentor(id)).catch(() => {});
-        patchState(store, {
-          pendingApprovals: store.pendingApprovals().filter(a => a.id !== id)
-        });
+      // ── Reject mentor ──────────────────────────────────
+      async reject(mentorId: string) {
+        try {
+          patchState(store, {
+            pendingApprovals: store.pendingApprovals().filter(a => a.id !== mentorId)
+          });
+        } catch (err) {
+          console.error('❌ Reject error:', err);
+        }
+      },
+
+      // ── Delete group permanently ───────────────────────
+      async deleteGroup(groupId: string) {
+        try {
+          await firstValueFrom(api.delete(`/admin/groups/${groupId}`));
+          patchState(store, {
+            groups: store.groups().filter(g => g.id !== groupId),
+            stats: {
+              ...store.stats(),
+              totalGroups: store.stats().totalGroups - 1
+            }
+          });
+          console.log('✅ Group deleted:', groupId);
+          return true;
+        } catch (err) {
+          console.error('❌ Delete group error:', err);
+          return false;
+        }
+      },
+
+      // ── Deactivate group ───────────────────────────────
+      async deactivateGroup(groupId: string) {
+        try {
+          await firstValueFrom(api.put(`/admin/groups/${groupId}/deactivate`, {}));
+          patchState(store, {
+            groups: store.groups().map(g =>
+              g.id === groupId ? { ...g, active: false } : g
+            )
+          });
+          console.log('✅ Group deactivated:', groupId);
+          return true;
+        } catch (err) {
+          console.error('❌ Deactivate group error:', err);
+          return false;
+        }
       }
     };
   })
